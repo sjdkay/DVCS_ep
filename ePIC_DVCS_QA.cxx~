@@ -66,10 +66,6 @@ void ePIC_DVCS_TASK::setMomCuts(Float_t factor = 1.){
     fPMax_p=100.0*factor;
     fPMax_e=10.0*factor;
   }
-  else if(sEnergy == "10x130"){
-    fPMax_p=130.0*factor;
-    fPMax_e=10.0*factor;
-  }
   else if(sEnergy == "18x275"){
     fPMax_p=275.0*factor;
     fPMax_e=18.0*factor;
@@ -89,7 +85,7 @@ void ePIC_DVCS_TASK::setMomCuts(Float_t factor = 1.){
 //----------------------------------------------------
 
 // Single particle cuts - electron
-Bool_t ePIC_DVCS_TASK::applyCuts_Electron(P3EVector beame, std::vector<P3EVector> scate){
+Bool_t ePIC_DVCS_TASK::applyCuts_Electron(std::vector<P3EVector> scate){
    Bool_t passCuts{kTRUE};
    
    // EVENT CUTS
@@ -102,7 +98,6 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Electron(P3EVector beame, std::vector<P3EVector
    // 1. Momentum
    if(scate[0].P() > fPMax_e) passCuts = kFALSE;
    // 2. Q2
-   fQ2 = calcQ2_Elec(beame, scate[0]);
    if(fQ2 < fMinQ2) passCuts = kFALSE;
 
    return passCuts;
@@ -152,9 +147,6 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Proton(std::vector<P3EVector> scatp, TString sP
   else if(sEnergy == "10x100"){
     beamP=100.0;
   }
-  else if(sEnergy == "10x130"){
-    beamP=130.0;
-  }
   else if(sEnergy == "18x275"){
     beamP=275.0;
   }
@@ -180,9 +172,6 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Proton(std::vector<P3EVector> scatp, TString sP
   }
   if(scatp[0].Theta()<fMinPTheta || scatp[0].Theta()>fMaxPTheta) passCuts = kFALSE;
 
-  // 3. Longitudinal momentum
-  //if(scatp[0].Z() < 0.98*beamP) passCuts = kFALSE;
-
   return passCuts;
 }
 
@@ -198,7 +187,7 @@ Bool_t ePIC_DVCS_TASK::applyCuts_DVCS(TString sProtonDet="all"){
   if(TMath::Log10(fxB) < fxB_Tail) passCuts = kFALSE;
   
   // 3. MAXIMUM MISSING MASS^2
-  //if(TMath::Abs(fM2miss) > fMax_M2miss) passCuts = kFALSE;
+  if(TMath::Abs(fM2miss) > fMax_M2miss) passCuts = kFALSE;
 
   return passCuts;
 }
@@ -210,8 +199,8 @@ Bool_t ePIC_DVCS_TASK::applyCuts_All(P3EVector beame, P3EVector beamp, vector<P3
   // 1. Electron cuts
   // Need to calculate Q2 first - set to zero if no detected electron
   if(scate.size() == 0) fQ2 = 0;
-  else fQ2 = calcQ2_Elec(beame, scate[0]);
-  passCuts = applyCuts_Electron(beame,scate);
+  else fQ2 = calcQ2(beame, scate[0]);
+  passCuts = applyCuts_Electron(scate);
   // Exit from function if failure
   if(!passCuts) return passCuts;
 
@@ -227,9 +216,9 @@ Bool_t ePIC_DVCS_TASK::applyCuts_All(P3EVector beame, P3EVector beamp, vector<P3
 
   // 4. Event cuts
   // Need to calculate t, xB and MM2 first (e'p'y final state guaranteed by this point)
-  fxB = calcX_Elec(beame, scate[0], beamp);
+  fxB = calcBjorkenX(beame, scate[0], beamp);
   fM2miss = calcM2Miss_3Body(beame, beamp, scate[0], scatp[0], scatg[0]);
-  ft = calcT_BABE(beamp, scatp[0]);
+  ft = calcT(beamp, scatp[0]);
   passCuts = applyCuts_DVCS(sProtonDet);
 
   return passCuts;
@@ -278,21 +267,17 @@ void ePIC_DVCS_TASK::undoAfterburnAndCalc(P3EVector& p, P3EVector& k){
   e_beam = boost(e_beam, vBoostToHoF);
 
   // Make changes to input vectors
-  p.SetPxPyPzE(p_beam.X(), p_beam.Y(), p_beam.Z(), calcE(p_beam.Vect(),fMass_proton));
-  k.SetPxPyPzE(e_beam.X(), e_beam.Y(), e_beam.Z(), calcE(e_beam.Vect(),fMass_electron));
+  p.SetPxPyPzE(p_beam.X(), p_beam.Y(), p_beam.Z(), p_beam.E());
+  k.SetPxPyPzE(e_beam.X(), e_beam.Y(), e_beam.Z(), e_beam.E());
 }
 
 // Undo afterburn procedure only
 void ePIC_DVCS_TASK::undoAfterburn(P3EVector& a){
-  Float_t mass = a.M();
-  
   // Undo AB procedure for single vector, a^{mu}
   a = boost(a, vBoostToCoM); // BOOST TO COM FRAME
   a = rotAboutY(a);          // ROTATE TO Z-AXIS
   a = rotAboutX(a);          // ROTATE TO Z-AXIS
   a = boost(a, vBoostToHoF); // BOOST BACK TO HEAD ON FRAME
-
-  a.SetPxPyPzE(a.X(), a.Y(), a.Z(), calcE(a.Vect(),mass));
 }
 
 //----------------------------------------------------
@@ -300,6 +285,57 @@ void ePIC_DVCS_TASK::undoAfterburn(P3EVector& a){
 //              KINEMATIC CALCULATIONS
 //----------------------------------------------------
 //----------------------------------------------------
+
+// Calculate t from beam and scattered proton vectors
+// t = (p' - p)^2
+Double_t ePIC_DVCS_TASK::calcT(P3EVector p, P3EVector pprime){
+  double t = (pprime - p).M2();
+  
+  return TMath::Abs(t);
+}
+
+// Calculate t without using proton information
+// t = (k - k' - g)^2
+Double_t ePIC_DVCS_TASK::calcTNoP(P3EVector k, P3EVector kprime, P3EVector g){
+  double t = (k - kprime - g).M2();
+  
+  return TMath::Abs(t);
+}
+
+// Calculate Q2 from beam and scattered electron vectors
+// Q2 = (k - k')^2
+Double_t ePIC_DVCS_TASK::calcQ2(P3EVector k, P3EVector kprime){
+  double q2 = (k - kprime).M2();
+  double Q2 = -q2;
+
+  return Q2;
+}
+
+// Calculate Bjorken x from both beam vectors and scattered electron vector
+// xB = Q2 / 2(q.p)
+Double_t ePIC_DVCS_TASK::calcBjorkenX(P3EVector k, P3EVector kprime, P3EVector p){
+  P3EVector q = k - kprime;
+  double q2 = -q.M2();
+  double denom = 2*q.Dot(p);
+
+  double xB = q2/denom;
+
+
+
+  return xB;
+}
+
+// Calculate Bjorken y from both beam vectors and scattered electron vector
+// y = (p.q)/(p.k)
+Double_t ePIC_DVCS_TASK::calcBjorkenY(P3EVector k, P3EVector kprime, P3EVector p){
+  P3EVector q = k - kprime;
+  Double_t num = p.Dot(q);
+  Double_t den = p.Dot(k);
+
+  double yB = num/den;
+
+  return yB;
+}
 
 // Calculate angle between hadronic and leptonic planes (Trento phi)
 // Using planes defined by [k, q] and [q, p']
@@ -512,6 +548,53 @@ Double_t ePIC_DVCS_TASK::calcConeAngle(P3EVector k, P3EVector p, P3EVector kprim
   return Angle(gp3,gExpected);
 }
 
+// Calculation of missing momentum for process ab->cdf
+Double_t ePIC_DVCS_TASK::calcPMiss_3Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d, P3EVector f){
+  Float_t fPMiss = (a+b-c-d-f).P();
+  return fPMiss;
+}
+
+Double_t ePIC_DVCS_TASK::calcPtMiss_3Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d, P3EVector f){
+  Float_t fPtMiss = (a+b-c-d-f).Pt();
+  return fPtMiss;
+}
+
+// Calculation of missing energy for process ab->cdf
+Double_t ePIC_DVCS_TASK::calcEMiss_3Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d, P3EVector f){
+  Float_t fEMiss = (a+b-c-d-f).E();
+  return fEMiss;
+}
+
+// Calculation of missing mass (squared) for process ab->cdf
+Double_t ePIC_DVCS_TASK::calcM2Miss_3Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d, P3EVector f){
+  Float_t fEMiss = (a+b-c-d-f).E();
+  Float_t fPMiss = (a+b-c-d-f).P();
+
+  Float_t fM2Miss = TMath::Power(fEMiss,2) - TMath::Power(fPMiss,2);
+  return fM2Miss;
+}
+
+// Calculation of missing momentum for process ab->cd
+Double_t ePIC_DVCS_TASK::calcPMiss_2Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d){
+  Float_t fPMiss = (a+b-c-d).P();
+  return fPMiss;
+}
+
+// Calculation of missing energy for process ab->cd
+Double_t ePIC_DVCS_TASK::calcEMiss_2Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d){
+  Float_t fEMiss = (a+b-c-d).E();
+  return fEMiss;
+}
+
+// Calculation of missing mass (squared) for process ab->cd
+Double_t ePIC_DVCS_TASK::calcM2Miss_2Body(P3EVector a, P3EVector b, P3EVector c, P3EVector d){
+  Float_t fEMiss = (a+b-c-d).E();
+  Float_t fPMiss = (a+b-c-d).P();
+
+  Float_t fM2Miss = TMath::Power(fEMiss,2) - TMath::Power(fPMiss,2);
+  return fM2Miss;
+}
+
 //----------------------------------------------------
 //----------------------------------------------------
 //                     DO ANALYSIS
@@ -677,18 +760,18 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH1D* h_b0_extracted_p_resolution;
 
   // Kinematic conservation - full final state
-  TH1D* h_Emiss3_MC = new TH1D("Emiss3_MC",";E_{miss}(MC) [GeV]",200,-50,50);
-  TH1D* h_Pmiss3_MC = new TH1D("Pmiss3_MC",";p_{miss}(MC) [GeV/#it{c}]",200,-50,50);
+  TH1D* h_Emiss3_MC = new TH1D("Emiss3_MC",";E_{miss}(MC) [GeV]",110,-5,50);
+  TH1D* h_Pmiss3_MC = new TH1D("Pmiss3_MC",";p_{miss}(MC) [GeV/#it{c}]",110,-5,50);
   TH1D* h_Ptmiss3_MC = new TH1D("Ptmiss3_MC",";p_{T,miss}(MC) [GeV/#it{c}]",60,-2,10);
-  TH1D* h_M2miss3_MC = new TH1D("M2miss3_MC",";M^{2}_{miss}(MC) [(GeV/#it{c}^{2})^{2}]",340,-150,20);
-  TH1D* h_Emiss3_MCA = new TH1D("Emiss3_MCA",";E_{miss}(MC|Reco) [GeV]",200,-50,50);
-  TH1D* h_Pmiss3_MCA = new TH1D("Pmiss3_MCA",";p_{miss}(MC|Reco) [GeV/#it{c}]",200,-50,50);
+  TH1D* h_M2miss3_MC = new TH1D("M2miss3_MC",";M^{2}_{miss}(MC) [(GeV/#it{c}^{2})^{2}]",200,-50,50);
+  TH1D* h_Emiss3_MCA = new TH1D("Emiss3_MCA",";E_{miss}(MC|Reco) [GeV]",110,-5,50);
+  TH1D* h_Pmiss3_MCA = new TH1D("Pmiss3_MCA",";p_{miss}(MC|Reco) [GeV/#it{c}]",110,-5,50);
   TH1D* h_Ptmiss3_MCA = new TH1D("Ptmiss3_MCA",";p_{T,miss}(MC|Reco) [GeV/#it{c}]",60,-2,10);
-  TH1D* h_M2miss3_MCA = new TH1D("M2miss3_MCA",";M^{2}_{miss}(MC|Reco) [(GeV/#it{c}^{2})^{2}]",340,-150,20);
-  TH1D* h_Emiss3_RP = new TH1D("Emiss3_RP",";E_{miss}(Reco) [GeV]",200,-50,50);
-  TH1D* h_Pmiss3_RP = new TH1D("Pmiss3_RP",";p_{miss}(Reco) [GeV/#it{c}]",200,-50,50);
+  TH1D* h_M2miss3_MCA = new TH1D("M2miss3_MCA",";M^{2}_{miss}(MC|Reco) [(GeV/#it{c}^{2})^{2}]",200,-50,50);
+  TH1D* h_Emiss3_RP = new TH1D("Emiss3_RP",";E_{miss}(Reco) [GeV]",110,-5,50);
+  TH1D* h_Pmiss3_RP = new TH1D("Pmiss3_RP",";p_{miss}(Reco) [GeV/#it{c}]",110,-5,50);
   TH1D* h_Ptmiss3_RP = new TH1D("Ptmiss3_RP",";p_{T,miss}(Reco) [GeV/#it{c}]",60,-2,10);
-  TH1D* h_M2miss3_RP = new TH1D("M2miss3_RP",";M^{2}_{miss}(Reco) [(GeV/#it{c}^{2})^{2}]",340,-150,20);
+  TH1D* h_M2miss3_RP = new TH1D("M2miss3_RP",";M^{2}_{miss}(Reco) [(GeV/#it{c}^{2})^{2}]",200,-50,50);
   // Kinematic conservation - partial final state
   TH1D* h_M2miss2ep_MC = new TH1D("M2miss2ep_MC",";M^{2}_{miss, e'p'}(MC) [(GeV/#it{c}^{2})^{2}]",200,-50,50);
   TH1D* h_M2miss2ep_MCA = new TH1D("M2miss2ep_MCA",";M^{2}_{miss, e'p'}(MCA) [(GeV/#it{c}^{2})^{2}]",200,-50,50);
@@ -754,14 +837,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
   // 2D eta vs p distributions - species inclusive
 
-  // 2D angluar distributions of final state
-  TH2D* h_2DAngles_eMC = new TH2D("2dangles_emc",";#phi [rad];#theta [rad]", 100, -3.2, 3.2, 100, 0.0, 3.2);
-  TH2D* h_2DAngles_gMC = new TH2D("2dangles_gmc",";#phi [rad];#theta [rad]", 100, -3.2, 3.2, 100, 0.0, 3.2);
-  TH2D* h_2DAngles_pMC = new TH2D("2dangles_pmc",";#phi [rad];#theta [mrad]", 100, -3.2, 3.2, 100, 0.0, 25);
-  TH2D* h_2DAngles_eRP = new TH2D("2dangles_erp",";#phi [rad];#theta [rad]", 100, -3.2, 3.2, 100, 0.0, 3.2);
-  TH2D* h_2DAngles_gRP = new TH2D("2dangles_grp",";#phi [rad];#theta [rad]", 100, -3.2, 3.2, 100, 0.0, 3.2);
-  TH2D* h_2DAngles_pRP = new TH2D("2dangles_prp",";#phi [rad];#theta [mrad]", 100, -3.2, 3.2, 100, 0.0, 25);
-
   //---------------------------------------------------------
   // Loop over files in list
   //---------------------------------------------------------
@@ -794,18 +869,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
     //---------------------------------------------------------
     TTreeReader tree_reader(evtTree);
     // MC particles
-    TTreeReaderArray<double> mc_px_array        = {tree_reader, "MCParticles.momentum.x"};
-    TTreeReaderArray<double> mc_py_array        = {tree_reader, "MCParticles.momentum.y"};
-    TTreeReaderArray<double> mc_pz_array        = {tree_reader, "MCParticles.momentum.z"};
+    TTreeReaderArray<float>  mc_px_array        = {tree_reader, "MCParticles.momentum.x"};
+    TTreeReaderArray<float>  mc_py_array        = {tree_reader, "MCParticles.momentum.y"};
+    TTreeReaderArray<float>  mc_pz_array        = {tree_reader, "MCParticles.momentum.z"};
     TTreeReaderArray<double> mc_mass_array      = {tree_reader, "MCParticles.mass"};
     TTreeReaderArray<int>    mc_genStatus_array = {tree_reader, "MCParticles.generatorStatus"};
-    TTreeReaderArray<int>    mc_pdg_array       = {tree_reader, "MCParticles.PDG"};
-    /*TTreeReaderArray<double> mc_px_array        = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.momentum.x"};
-    TTreeReaderArray<double> mc_py_array        = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.momentum.y"};
-    TTreeReaderArray<double> mc_pz_array        = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.momentum.z"};
-    TTreeReaderArray<double> mc_mass_array      = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.mass"};
-    TTreeReaderArray<int>    mc_genStatus_array = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.generatorStatus"};
-    TTreeReaderArray<int>    mc_pdg_array       = {tree_reader, "MCParticlesHeadOnFrameNoBeamFX.PDG"};*/
+    TTreeReaderArray<int>    mc_pdg_array       = {tree_reader, "MCParticles.PDG"};    
     // Reconstructed/MC particle associations - BARREL (using ReconstructedParticles branch)
     TTreeReaderArray<unsigned int> assoc_rec_id = {tree_reader, "ReconstructedParticleAssociations.recID"};
     TTreeReaderArray<unsigned int> assoc_sim_id = {tree_reader, "ReconstructedParticleAssociations.simID"};
@@ -892,9 +961,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
       
       // Undo afterburn on beam particles and calculate "postburn" variables
       undoAfterburnAndCalc(beamp4,beame4);
-      
-      // Restart TTreeReader for first file
-      tree_reader.Restart();
     }
 
     //---------------------------------------------------------
@@ -1118,12 +1184,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
       // Generated particles
       // Need Q2 for electron cuts
       if(scate4_gen.size() == 0) fQ2 = 0;
-      else fQ2 = calcQ2_Elec(beame4, scate4_gen[0]);
+      else fQ2 = calcQ2(beame4, scate4_gen[0]);
       // Start with setting xB tail far away from expected point
       fxB_Tail = -10;
       // Fill histograms
       // Electron kinematics
-      if(applyCuts_Electron(beame4,scate4_gen)){
+      if(applyCuts_Electron(scate4_gen)){
 	h_eta_MCe->Fill(scate4_gen[0].Eta());
 	h_pt_MCe->Fill(scate4_gen[0].Pt());
 	h_p_MCe->Fill(scate4_gen[0].P());
@@ -1149,15 +1215,15 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_phi_MCp->Fill(scatp4_gen[0].Phi());
 	h_E_MCp->Fill(scatp4_gen[0].E());
       }
-      if(applyCuts_Electron(beame4,scate4_gen) && applyCuts_Photon(scatg4_gen)){
+      if(applyCuts_Electron(scate4_gen) && applyCuts_Photon(scatg4_gen)){
 	// Electron-photon angles
 	h_dphi_MCeg->Fill(scate4_gen[0].Phi()-scatg4_gen[0].Phi());
 	h_dtheta_MCeg->Fill(scate4_gen[0].Theta()-scatg4_gen[0].Theta());
 	
 	// Electron-based event kinematics
 	h_Q2_MC->Fill(fQ2);
-	h_y_MC->Fill(calcY_Elec(beame4, beamp4, scate4_gen[0]));
-	fxB = calcX_Elec(beame4, beamp4, scate4_gen[0]);
+	h_y_MC->Fill(calcBjorkenY(beame4, scate4_gen[0], beamp4));
+	fxB = calcBjorkenX(beame4, scate4_gen[0], beamp4);
 	h_xB_MC->Fill(TMath::Log10(fxB));
 	h_QPQG_MC->Fill(calcPhiQPQG(beame4, beamp4, scate4_gen[0], scatg4_gen[0]));
 	
@@ -1168,9 +1234,9 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  // And event DVCS cuts
 	  // Need to calculate missing mass squared and t for DVCS cuts
 	  fM2miss = calcM2Miss_3Body(beame4, beamp4, scate4_gen[0], scatp4_gen[0], scatg4_gen[0]);
-	  ft = calcT_BABE(beamp4, scatp4_gen[0]);
+	  ft = calcT(beamp4, scatp4_gen[0]);
 	  if(applyCuts_DVCS("all")){
-	    h_t_MC->Fill(calcT_BABE(beamp4, scatp4_gen[0]));
+	    h_t_MC->Fill(calcT(beamp4, scatp4_gen[0]));
 	    // Need to calculate phi_h in the CoM frame
 	    MomVector vCoMi = (beame4+beamp4).BoostToCM();
 	    MomVector vCoMf = (scate4_gen[0]+scatp4_gen[0]+scatg4_gen[0]).BoostToCM();
@@ -1197,10 +1263,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
       // Associated MC
       // Need Q2 for electron cuts
       if(scate4_aso.size() == 0) fQ2 = 0;
-      else fQ2 = calcQ2_Elec(beame4, scate4_aso[0]);
+      else fQ2 = calcQ2(beame4, scate4_aso[0]);
       // Fill histograms
       // Electron kinematics
-      if(applyCuts_Electron(beame4,scate4_aso)){
+      if(applyCuts_Electron(scate4_aso)){
 	h_eta_MCAe->Fill(scate4_aso[0].Eta());
 	h_pt_MCAe->Fill(scate4_aso[0].Pt());
 	h_p_MCAe->Fill(scate4_aso[0].P());
@@ -1226,15 +1292,15 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_phi_MCAp->Fill(scatp4_aso[0].Phi());
 	h_E_MCAp->Fill(scatp4_aso[0].E());
       }
-      if(applyCuts_Electron(beame4,scate4_aso) && applyCuts_Photon(scatg4_aso)){
+      if(applyCuts_Electron(scate4_aso) && applyCuts_Photon(scatg4_aso)){
 	// Electron-photon angles
 	h_dphi_MCAeg->Fill(scate4_aso[0].Phi()-scatg4_aso[0].Phi());
 	h_dtheta_MCAeg->Fill(scate4_aso[0].Theta()-scatg4_aso[0].Theta());
 
 	// Electron-based event kinematics
 	h_Q2_MCA->Fill(fQ2);
-	h_y_MCA->Fill(calcY_Elec(beame4, beamp4, scate4_aso[0]));
-	fxB = calcX_Elec(beame4, beamp4, scate4_aso[0]);
+	h_y_MCA->Fill(calcBjorkenY(beame4, scate4_aso[0], beamp4));
+	fxB = calcBjorkenX(beame4, scate4_aso[0], beamp4);
 	h_xB_MCA->Fill(TMath::Log10(fxB));
 	h_QPQG_MCA->Fill(calcPhiQPQG(beame4, beamp4, scate4_aso[0], scatg4_aso[0]));
 
@@ -1243,9 +1309,9 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  // And event DVCS cuts
 	  // Need to calculate missing mass squared and t for DVCS cuts
 	  fM2miss = calcM2Miss_3Body(beame4, beamp4, scate4_aso[0], scatp4_aso[0], scatg4_aso[0]);
-	  ft = calcT_BABE(beamp4, scatp4_aso[0]);
+	  ft = calcT(beamp4, scatp4_aso[0]);
 	  if(applyCuts_DVCS("all")){
-	    h_t_MCA->Fill(calcT_BABE(beamp4, scatp4_aso[0]));
+	    h_t_MCA->Fill(calcT(beamp4, scatp4_aso[0]));
 	    MomVector vCoMi = (beame4+beamp4).BoostToCM();
 	    MomVector vCoMf = (scate4_aso[0]+scatp4_aso[0]+scatg4_aso[0]).BoostToCM();
 	    MomVector vTargetRest = beamp4.BoostToCM();
@@ -1262,21 +1328,22 @@ void ePIC_DVCS_TASK::doAnalysis(){
       // Reconstructed particles - Barrel/B0
       // Need Q2 for electron cuts
       if(scate4_rec.size() == 0) fQ2 = 0;
-      else fQ2 = calcQ2_Elec(beame4, scate4_rec[0]);
+      else fQ2 = calcQ2(beame4, scate4_rec[0]);
       // Fill histograms
       // Electron kinematics
-      if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec)){
+      if(applyCuts_Electron(scate4_rec) && applyCuts_Photon(scatg4_rec)){
 	h_eta_RPe->Fill(scate4_rec[0].Eta());
 	h_pt_RPe->Fill(scate4_rec[0].Pt());
 	h_p_RPe->Fill(scate4_rec[0].P());
 	h_theta_RPe->Fill(scate4_rec[0].Theta());
 	h_phi_RPe->Fill(scate4_rec[0].Phi());
 	h_E_RPe->Fill(scate4_rec[0].E());
+
 	
 	h_2D_EvEta_e->Fill(scate4_rec[0].Eta(), scate4_rec[0].E());
       }
       // Photon kinematics
-      if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec)){
+      if(applyCuts_Electron(scate4_rec) && applyCuts_Photon(scatg4_rec)){
 	h_eta_RPg->Fill(scatg4_rec[0].Eta());
 	h_pt_RPg->Fill(scatg4_rec[0].Pt());
 	h_p_RPg->Fill(scatg4_rec[0].P());
@@ -1305,82 +1372,96 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_theta_RPPp->Fill(scatp4_rom[0].Theta()*1000);
 	h_phi_RPPp->Fill(scatp4_rom[0].Phi());
 	h_E_RPPp->Fill(scatp4_rom[0].E());
-	
+
 	h_px_RPP->Fill(scatp4_rom[0].Px());
 	h_py_RPP->Fill(scatp4_rom[0].Py());
 	h_pz_RPP->Fill(scatp4_rom[0].Pz());
-	
+
 	h_2D_EvEta_p->Fill(scatp4_rom[0].Eta(), scatp4_rom[0].E());
       }
-      if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec)){
+      if(applyCuts_Electron(scate4_rec) && applyCuts_Photon(scatg4_rec)){
 	// Electron-photon angles
 	h_dphi_RPeg->Fill(scate4_rec[0].Phi()-scatg4_rec[0].Phi());
 	h_dtheta_RPeg->Fill(scate4_rec[0].Theta()-scatg4_rec[0].Theta());
 	
 	// Electron-based event kinematics
 	h_Q2_RP->Fill(fQ2);
-	h_y_RP->Fill(calcY_Elec(beame4, beamp4, scate4_rec[0]));
-	fxB = calcX_Elec(beame4, beamp4, scate4_rec[0]);
+	h_y_RP->Fill(calcBjorkenY(beame4, scate4_rec[0], beamp4));
+	fxB = calcBjorkenX(beame4, scate4_rec[0], beamp4);
 	h_xB_RP->Fill(TMath::Log10(fxB));
 	h_QPQG_RP->Fill(calcPhiQPQG(beame4, beamp4, scate4_rec[0], scatg4_rec[0]));
 	
-	// Event-level information.
-	// Only single proton - no double counting from different detectors!
-	// B0
+	// Now add proton information - B0
 	if(applyCuts_Proton(scatp4_all, "B0")){
 	  // And event DVCS cuts
 	  // Need to calculate missing mass squared and t for DVCS cuts
 	  fM2miss = calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]);
-	  ft = calcT_BABE(beamp4, scatp4_all[0]);
-	  if(applyCuts_DVCS("B0")){
-	    h_t_RP->Fill(calcT_BABE(beamp4, scatp4_all[0]));
-	    MomVector vCoMi = (beame4+beamp4).BoostToCM();
-	    MomVector vCoMf = (scate4_rec[0]+scatp4_all[0]+scatg4_rec[0]).BoostToCM();
-	    MomVector vTargetRest = beamp4.BoostToCM();
-	    // Trento Phi - target rest frame
-	    h_TPhi_RP->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_all[0], vTargetRest)));
-	    h_TPhi_pg_RP->Fill(calcTrentoPhi_pg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_all[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));
-	    h_TPhi_qg_RP->Fill(calcTrentoPhi_qg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));
+	  ft = calcT(beamp4, scatp4_all[0]);
+	  
+	  // Add proton information - RP
+	  if(applyCuts_Proton(scatp4_all, "RP")){
+	    // And event DVCS cuts
+	    // Need to calculate missing mass squared and t for DVCS cuts
+	    fM2miss = calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]);
+	    ft = calcT(beamp4, scatp4_all[0]);
+	    if(applyCuts_DVCS("RP")){
+	      h_t_RPP->Fill(calcT(beamp4, scatp4_all[0]));
+	      MomVector vCoMi = (beame4+beamp4).BoostToCM();
+	      MomVector vCoMf = (scate4_rec[0]+scatp4_all[0]+scatg4_rec[0]).BoostToCM();
+	      MomVector vTargetRest = beamp4.BoostToCM();
+	      // Change CoM definition: use qp/p-gamma system
+	      MomVector vCoMgp = (beamp4+beame4-scate4_gen[0]).BoostToCM();
+	      // Trento Phi - target rest frame
+	      /*h_TPhi_RPP->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_all[0], vTargetRest)));
+		h_TPhi_pg_RPP->Fill(calcTrentoPhi_pg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_all[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));	   
+		h_TPhi_qg_RPP->Fill(calcTrentoPhi_qg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));*/
+	      h_TPhi_RPP->Fill(calcTrentoPhi_qp(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatp4_all[0], vCoMgp)));
+	      h_TPhi_pg_RPP->Fill(calcTrentoPhi_pg(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatp4_all[0], vCoMgp), boost(scatg4_rec[0], vCoMgp))); 
+	      h_TPhi_qg_RPP->Fill(calcTrentoPhi_qg(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatg4_rec[0], vCoMgp)));
+	      h_Cone_RPP->Fill(calcConeAngle(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]));
+	    }
 	  }
-	}
-	// RP
-	if(applyCuts_Proton(scatp4_all, "RP")){
-	  // And event DVCS cuts
-	  // Need to calculate missing mass squared and t for DVCS cuts
-	  fM2miss = calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]);
-	  ft = calcT_BABE(beamp4, scatp4_all[0]);
-	  if(applyCuts_DVCS("RP")){
-	    h_t_RPP->Fill(calcT_BABE(beamp4, scatp4_all[0]));
+	  
+	  // Only move onto B0 if RP tracks are empty
+	  if(applyCuts_DVCS("B0")){
+	    h_t_RP->Fill(calcT(beamp4, scatp4_all[0]));
 	    MomVector vCoMi = (beame4+beamp4).BoostToCM();
 	    MomVector vCoMf = (scate4_rec[0]+scatp4_all[0]+scatg4_rec[0]).BoostToCM();
 	    MomVector vTargetRest = beamp4.BoostToCM();
+	    // Change CoM definition: use qp/p-gamma system
+	    MomVector vCoMgp = (beamp4+beame4-scate4_gen[0]).BoostToCM();
+	    //h_TPhi_RP->Fill(calcTrentoPhi_qp(boost(beame4, vCoMi), boost(scate4_rec[0], vCoMf), boost(scatp4_rec[0], vCoMf)));
 	    // Trento Phi - target rest frame
-	    h_TPhi_RPP->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_all[0], vTargetRest)));
-	    h_TPhi_pg_RPP->Fill(calcTrentoPhi_pg(boost(beame4,vTargetRest),boost(scate4_rec[0],vTargetRest),boost(scatp4_all[0],vTargetRest),boost(scatg4_rec[0],vTargetRest)));   
-	    h_TPhi_qg_RPP->Fill(calcTrentoPhi_qg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));
-	    h_Cone_RPP->Fill(calcConeAngle(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]));
+	    /*h_TPhi_RP->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_rec[0], vTargetRest)));
+	    h_TPhi_pg_RP->Fill(calcTrentoPhi_pg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatp4_rec[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));	   
+	    h_TPhi_qg_RP->Fill(calcTrentoPhi_qg(boost(beame4, vTargetRest), boost(scate4_rec[0], vTargetRest), boost(scatg4_rec[0], vTargetRest)));*/
+	    // Trento Phi - centre-of-mass frame
+	    h_TPhi_RP->Fill(calcTrentoPhi_qp(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatp4_all[0], vCoMgp)));
+	    h_TPhi_pg_RP->Fill(calcTrentoPhi_pg(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatp4_all[0], vCoMgp), boost(scatg4_rec[0], vCoMgp)));	   
+	    h_TPhi_qg_RP->Fill(calcTrentoPhi_qg(boost(beame4, vCoMgp), boost(scate4_rec[0], vCoMgp), boost(scatg4_rec[0], vCoMgp)));
+	    h_Cone_RP->Fill(calcConeAngle(beame4, beamp4, scate4_rec[0], scatp4_all[0], scatg4_rec[0]));
 	  }
 	}
       } // FILLED RECONSTRUCTED HISTOS
-      
+
       // 2D histograms for proton momenta
       if(scatp4_aso.size()==1 && scatp4_rec.size()==1){
 	h_p_2d->Fill(scatp4_aso[0].P(), scatp4_rec[0].P());
 	h_pt_2d->Fill(scatp4_aso[0].Pt(), scatp4_rec[0].Pt());
-	h_t_2d->Fill(calcT_BABE(beamp4, scatp4_aso[0]), calcT_BABE(beamp4, scatp4_rec[0]));
+	h_t_2d->Fill(calcT(beamp4, scatp4_aso[0]), calcT(beamp4, scatp4_rec[0]));
       }
-      
+
       // Fill 2D t-resolution
       // ASSUME THAT GENERATED POSITIVE TRACK MATCHES RECONSTRUCTED POSITIVE TRACK
       Float_t t_rec{0}, t_gen{0};
       if(applyCuts_Proton(scatp4_all, "B0") && applyCuts_Proton(scatp4_gen, "all")){
-	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
-	t_rec = calcT_BABE(beamp4, scatp4_all[0]);
+	t_gen = calcT(beamp4, scatp4_gen[0]);
+	t_rec = calcT(beamp4, scatp4_all[0]);
 	h_tRes_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen));
       }
       if(applyCuts_Proton(scatp4_all, "RP") && applyCuts_Proton(scatp4_gen, "all")){
-	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
-	t_rec = calcT_BABE(beamp4, scatp4_all[0]);
+	t_gen = calcT(beamp4, scatp4_gen[0]);
+	t_rec = calcT(beamp4, scatp4_all[0]);
 	h_tRes_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen));
       }
 
@@ -1520,54 +1601,41 @@ void ePIC_DVCS_TASK::doAnalysis(){
       // Standalone histograms -  2D distributions (t vs xB)
       //------------------------------------------------------------
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all")){
-	h_2D_xVt_MC->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_gen[0])), calcT_BABE(beamp4, scatp4_gen[0]));
-	h_2D_tVQ2_MC->Fill(calcT_BABE(beamp4, scatp4_gen[0]), calcQ2_Elec(beame4, scate4_gen[0]));
+	h_2D_xVt_MC->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_gen[0], beamp4)), calcT(beamp4, scatp4_gen[0]));
+	h_2D_tVQ2_MC->Fill(calcT(beamp4, scatp4_gen[0]), calcQ2(beame4, scate4_gen[0]));
       }
       if(applyCuts_All(beame4, beamp4, scate4_aso, scatp4_aso, scatg4_aso, "all")){
-	h_2D_xVt_MCA->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_aso[0])), calcT_BABE(beamp4, scatp4_aso[0]));
-	h_2D_tVQ2_MCA->Fill(calcT_BABE(beamp4, scatp4_aso[0]), calcQ2_Elec(beame4, scate4_aso[0]));
+	h_2D_xVt_MCA->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_aso[0], beamp4)), calcT(beamp4, scatp4_aso[0]));
+	h_2D_tVQ2_MCA->Fill(calcT(beamp4, scatp4_aso[0]), calcQ2(beame4, scate4_aso[0]));
       }
       if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0")){
-	h_2D_xVt_RP->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_rec[0])), calcT_BABE(beamp4, scatp4_rec[0]));
-	h_2D_tVQ2_RP->Fill(calcT_BABE(beamp4, scatp4_rec[0]), calcQ2_Elec(beame4, scate4_rec[0]));
+	h_2D_xVt_RP->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_rec[0], beamp4)), calcT(beamp4, scatp4_rec[0]));
+	h_2D_tVQ2_RP->Fill(calcT(beamp4, scatp4_rec[0]), calcQ2(beame4, scate4_rec[0]));
       }
       if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rom, scatg4_rec, "RP")){
-	h_2D_xVt_RP->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_rec[0])), calcT_BABE(beamp4, scatp4_rom[0]));
-	h_2D_tVQ2_RP->Fill(calcT_BABE(beamp4, scatp4_rom[0]), calcQ2_Elec(beame4, scate4_rec[0]));
+	h_2D_xVt_RP->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_rec[0], beamp4)), calcT(beamp4, scatp4_rom[0]));
+	h_2D_tVQ2_RP->Fill(calcT(beamp4, scatp4_rom[0]), calcQ2(beame4, scate4_rec[0]));
       }
 
       //------------------------------------------------------------
       // Standalone histograms -  2D distributions (Q2 vs xB)
       //------------------------------------------------------------
-      if(applyCuts_Electron(beame4,scate4_gen)){
-	h_2D_xVQ2_MC->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_gen[0])), calcQ2_Elec(beame4, scate4_gen[0]));
+      if(applyCuts_Electron(scate4_gen)){
+	h_2D_xVQ2_MC->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_gen[0], beamp4)), calcQ2(beame4, scate4_gen[0]));
       }
-      if(applyCuts_Electron(beame4,scate4_aso)){
-	h_2D_xVQ2_MCA->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_aso[0])), calcQ2_Elec(beame4, scate4_aso[0]));
+      if(applyCuts_Electron(scate4_aso)){
+	h_2D_xVQ2_MCA->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_aso[0], beamp4)), calcQ2(beame4, scate4_aso[0]));
       }
-      if(applyCuts_Electron(beame4,scate4_rec)){
-	h_2D_xVQ2_RP->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_rec[0])), calcQ2_Elec(beame4, scate4_rec[0]));
+      if(applyCuts_Electron(scate4_rec)){
+	h_2D_xVQ2_RP->Fill(TMath::Log10(calcBjorkenX(beame4, scate4_rec[0], beamp4)), calcQ2(beame4, scate4_rec[0]));
       }
 
       //------------------------------------------------------------
       // Standalone histograms -  Inclusive t-distribution
       //------------------------------------------------------------
-      if(applyCuts_Proton(scatp4_gen, "all")) h_tInc_MC->Fill(calcT_BABE(beamp4,scatp4_gen[0]));
-      if(applyCuts_Proton(scatp4_rec,"B0"))   h_tInc_RP->Fill(calcT_BABE(beamp4,scatp4_rec[0]));
-      if(applyCuts_Proton(scatp4_rom,"RP") && calcT_BABE(beamp4,scatp4_rom[0])<fMaxt_RP)  h_tInc_RPP->Fill(calcT_BABE(beamp4,scatp4_rom[0]));
-
-      //--------------------------------------------------------------------------
-      // Standalone histograms -  2D angular distributions of scattered particles
-      //--------------------------------------------------------------------------
-      // MC Particles
-      if(scate4_gen.size()==1) h_2DAngles_eMC->Fill(scate4_gen[0].Phi(), scate4_gen[0].Theta());
-      if(scatg4_gen.size()==1) h_2DAngles_gMC->Fill(scatg4_gen[0].Phi(), scatg4_gen[0].Theta());
-      if(scatp4_gen.size()==1) h_2DAngles_pMC->Fill(scatp4_gen[0].Phi(), 1000*scatp4_gen[0].Theta());
-      // Reconstructed
-      if(scate4_rec.size()==1) h_2DAngles_eRP->Fill(scate4_rec[0].Phi(), scate4_rec[0].Theta());
-      if(scatg4_rec.size()==1) h_2DAngles_gRP->Fill(scatg4_rec[0].Phi(), scatg4_rec[0].Theta());
-      if(scatp4_rec.size()==1 && scatp4_rom.size()==0) h_2DAngles_pRP->Fill(scatp4_rec[0].Phi(), 1000*scatp4_rec[0].Theta());
-      if(scatp4_rec.size()==0 && scatp4_rom.size()==1) h_2DAngles_pRP->Fill(scatp4_rom[0].Phi(), 1000*scatp4_rom[0].Theta());
+      if(applyCuts_Proton(scatp4_gen, "all")) h_tInc_MC->Fill(calcT(beamp4,scatp4_gen[0]));
+      if(applyCuts_Proton(scatp4_rec,"B0"))   h_tInc_RP->Fill(calcT(beamp4,scatp4_rec[0]));
+      if(applyCuts_Proton(scatp4_rom,"RP") && calcT(beamp4,scatp4_rom[0])<fMaxt_RP)  h_tInc_RPP->Fill(calcT(beamp4,scatp4_rom[0]));
 
     } // END EVENT/TTREEREADER LOOP
 
@@ -1782,12 +1850,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
   h_px_RPP->Write();
   h_py_RPP->Write();
   h_pz_RPP->Write();
-  h_2DAngles_eMC->Write();
-  h_2DAngles_gMC->Write();
-  h_2DAngles_pMC->Write();
-  h_2DAngles_eRP->Write();
-  h_2DAngles_gRP->Write();
-  h_2DAngles_pRP->Write();
 
   fOutFile->Close();
 

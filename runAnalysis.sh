@@ -16,8 +16,8 @@ Help()
     echo "options:"
     echo "b     Beam setting (hiAcc, hiDiv, TEST)."
     echo "c     Campaign to look at (23.08.0, 23.10.1, etc.)."
-    echo "e     Beam energy configuration (\"5x41\", \"10x100\", \"18x275\")."
-    echo "m     Comment message for run."
+    echo "e     Beam energy configuration (\"5x41\", \"10x100\", \"18x275\" (physics beams), \"10x130\" (early science))."
+    echo "m     Comment message for run (SPECIAL: \"QA\" for running QA plots)."
     echo
     echo "Help message is run if no options are provided."
 }
@@ -82,10 +82,17 @@ if [ $Energy == "X" ]
 then
     echo "Must declare beam energy."
     exit
-elif [ $Energy != "5x41" ] && [ $Energy != "10x100" ] && [ $Energy != "18x275" ]
+elif [ $Energy != "5x41" ] && [ $Energy != "10x100" ] && [ $Energy != "18x275" ] && [ $Energy != "10x130" ]
 then
     echo "Invalid beam energy."
     exit
+fi
+# Only high acceptance detector setting available for early science beams - reject hiDiv & replace w/ hiAcc
+if [ $Energy == "10x130" ] && [ $BeamSet == "hiDiv" ]
+then
+    echo "hiDiv setting not available for early science beams"
+    echo "Using hiAcc instead"
+    BeamSet="hiAcc"
 fi
 
 # Check if filelist of interest exists already
@@ -106,7 +113,7 @@ then
     elif [ "$BeamSet" != "TEST" ]
     then
 	echo "Making file list "$FileList
-	#./getFilelist.sh -c $Camp -e $Energy -b $BeamSet
+	./getFilelist.sh -c $Camp -e $Energy -b $BeamSet
     fi 
 fi
 
@@ -117,6 +124,8 @@ then
     echo "Running DVCS QA plots"
     # Run analysis
     root -q 'run_ePIC_DVCS_QA.C("'$Camp'","'$Energy'","'$BeamSet'","QA")'
+    # Run plotting macro
+    root -q 'QAPlots.C("'$Camp'","'$Energy'","'$BeamSet'")'
 else
     echo "Running standard DVCS analysis"
     # Run analysis

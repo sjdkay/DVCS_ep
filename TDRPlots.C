@@ -76,6 +76,11 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   TH1D* h_PhotRes_theta = (TH1D*)inFile->Get("photres_theta");
   TH2D* h_PhotRes2D_theta = (TH2D*)inFile->Get("photres2d_theta");
 
+  // Inclusive t
+  TH1D* h_tInc_MC = (TH1D*)inFile->Get("tInc_MC");
+  TH1D* h_tInc_RP = (TH1D*)inFile->Get("tInc_RP");
+  TH1D* h_tInc_RPP = (TH1D*)inFile->Get("tInc_RPP");
+
   //--------------------------------------------------------------------------------------
   // Set histogram line colours: MC raw - black; MC associated - red; Reconstructed - blue
   //--------------------------------------------------------------------------------------
@@ -87,6 +92,7 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   h_M2miss3_MC->SetLineColor(kBlack);
   h_M2miss2ep_MC->SetLineColor(kBlack);
   h_M2miss2eg_MC->SetLineColor(kBlack);
+  h_tInc_MC->SetLineColor(kBlack);
   // Associated MC
   h_t_MCA->SetLineColor(kRed);
   h_Emiss3_MCA->SetLineColor(kRed);
@@ -106,6 +112,10 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   h_M2miss3_RP->SetLineColor(kBlue);
   h_M2miss2ep_RP->SetLineColor(kBlue);
   h_M2miss2eg_RP->SetLineColor(kBlue);
+  h_tInc_RP->SetLineColor(kBlue);
+  h_tInc_RP->SetMarkerColor(kBlue);
+  h_tInc_RPP->SetLineColor(kCyan+1);
+  h_tInc_RPP->SetMarkerColor(kCyan+1);
 
   //--------------------------------------------------------------------------------------
   // Draw histograms
@@ -145,7 +155,7 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   tHead1->Draw("same");
   tHead2->Draw("same");
   // Add legend
-  TLatex* tC1 = new TLatex(0.58, 0.83, "#splitline{#bf{EpIC} ep #rightarrow e'p'#gamma, Q^{2} #geq 1 GeV^{2}}{t_{RP} #leq 0.3 GeV^{2}, M_{miss}^{2} < 1 GeV^{2}}");
+  TLatex* tC1 = new TLatex(0.56, 0.83, "#splitline{#bf{EpIC} ep #rightarrow e'p'#gamma, Q^{2} #geq 1 GeV^{2}}{t_{RP} #leq 0.3 GeV^{2}, M_{miss}^{2} < 1 GeV^{2}}");
   tC1->SetNDC();
   tC1->SetTextSize(30);
   tC1->SetTextFont(43);
@@ -436,6 +446,7 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   h_t_resolution->SetTitle("");
   h_t_resolution->GetXaxis()->SetTitleSize(0.05);
   h_t_resolution->GetXaxis()->SetTitleOffset(0.8);
+  h_t_resolution->GetYaxis()->SetTitle("#delta t/|t|_{MC}");  
   h_t_resolution->GetYaxis()->SetTitleSize(0.05);
   h_t_resolution->GetYaxis()->SetTitleOffset(0.9);
   h_t_resolution->Draw();
@@ -458,6 +469,46 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   h_tRes_2d->GetYaxis()->SetLabelSize(0.05);
   h_tRes_2d->GetYaxis()->SetRangeUser(0,12);
   h_tRes_2d->Draw();
+
+  // CANVAS 5: INCLUSIVE T-DISTRIBUTION
+  TCanvas* c5 = new TCanvas("c5","",1200,800);
+  h_tInc_MC->SetMinimum(1);
+  c5->SetSupportGL(true);
+  gPad->SetLogy(1);
+  h_tInc_MC->GetXaxis()->SetTitle("|t| [GeV^{2}]");
+  h_tInc_MC->GetYaxis()->SetTitle("Counts / 0.02 GeV^{2}");
+  h_tInc_MC->SetLineWidth(2);
+  h_tInc_MC->Draw();
+  h_tInc_RP->SetMarkerStyle(20);
+  h_tInc_RP->Draw("pesame");
+  h_tInc_RPP->SetMarkerStyle(20);
+  h_tInc_RPP->Draw("pesame");
+  // Add fully exclusive histograms
+  TH1F* h_t_RP_Clone = (TH1F*)h_t_RP->Clone("t_rp_clone");
+  TH1F* h_t_RPP_Clone = (TH1F*)h_t_RPP->Clone("t_rpp_clone");
+  h_t_RP_Clone->SetFillColorAlpha(kBlue,0.3);
+  h_t_RP_Clone->SetFillStyle(1001);
+  h_t_RP_Clone->Draw("same");
+  h_t_RPP_Clone->SetFillColorAlpha(kCyan+1,0.3);
+  h_t_RPP_Clone->SetFillStyle(1001);
+  h_t_RPP_Clone->Draw("same");
+  // Add header text
+  tHead1->Draw("same");
+  tHead2->Draw("same");
+  // Add legend
+  TLatex* tC5 = new TLatex(0.58, 0.83, "#splitline{#bf{EpIC} ep #rightarrow p'X, Q^{2} #geq 1 GeV^{2}}{t_{RP} #leq 0.3 GeV^{2}}");
+  tC5->SetNDC();
+  tC5->SetTextSize(30);
+  tC5->SetTextFont(43);
+  tC5->SetTextColor(kBlack);
+  tC5->Draw("same");
+  TLegend* lC5 = new TLegend(0.57, 0.6, 0.8, 0.77);
+  lC5->SetLineColorAlpha(kWhite,0);
+  lC5->SetFillColorAlpha(kWhite,0);
+  lC5->AddEntry(h_t_MC, "#bf{EpIC} MC gen.", "l");
+  lC5->AddEntry(h_t_RP, "Reco. B0", "lp");
+  lC5->AddEntry(h_t_RPP, "Reco. RP", "lp");
+  lC5->Draw();
 
   return;
 }

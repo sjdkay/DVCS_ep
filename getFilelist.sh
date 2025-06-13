@@ -16,7 +16,7 @@ Help()
     echo "options:"
     echo "b     Beam setting (hiAcc, hiDiv)."
     echo "c     Campaign to look at (23.08.0, 23.10.1, etc.)."
-    echo "e     Beam energy configuration (\"5x41\", \"10x100\", \"18x275\")."
+    echo "e     Beam energy configuration (\"5x41\", \"10x100\", \"18x275\" (physics beams), \"10x130\" (early science))."
     echo
     echo "Help message is run if no options are provided."
 }
@@ -56,10 +56,6 @@ while getopts h:b:c:e: option; do
     esac
 done
 
-#echo "Beam setting: $BeamSet"
-#echo "Beam energy: $Energy"
-#echo "Campaign: $Camp"
-
 # Check for valid inputs: beam setting
 if [ $BeamSet == "X" ]
 then
@@ -81,14 +77,31 @@ if [ $Energy == "X" ]
 then
     echo "Must declare beam energy."
     exit
-elif [ $Energy != "5x41" ] && [ $Energy != "10x100" ] && [ $Energy != "18x275" ]
+elif [ $Energy != "5x41" ] && [ $Energy != "10x100" ] && [ $Energy != "18x275" ] && [ $Energy != "10x130" ]
 then
     echo "Invalid beam energy."
     exit
 fi
-
-
-#mc ls S3/eictest/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy | grep $BeamSet | sed "s,.*DVCS.,root://dtn-eic.jlab.org//work/eic2/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy/DVCS.," > ../DVCS_ep/filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+# Only high acceptance detector setting available for early science beams - reject hiDiv & replace w/ hiAcc
+if [ $Energy == "10x130" ] && [ $BeamSet == "hiDiv" ]
+then
+    echo "hiDiv setting not available for early science beams"
+    echo "Using hiAcc instead"
+    BeamSet="hiAcc"
+fi
 
 # Sep. '24 -> Simulation files now no longer written to S3. Need to convert purely to XRootD syntax
-xrdfs root://dtn-eic.jlab.org ls /work/eic2/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy | grep $BeamSet | sed "s,/work,root://dtn-eic.jlab.org//work," > filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+#xrdfs root://dtn-eic.jlab.org ls /work/eic2/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy | grep $BeamSet | sed "s,/work,root://dtn-eic.jlab.org//work," > filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+
+# Jan. '25 -> Campaign files moved to a different location within JLab workdisk - for campaigns 25.01.1 and beyond
+#xrdfs root://dtn-eic.jlab.org ls /volatile/eic/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy | grep $BeamSet | sed "s,/volatile,root://dtn-eic.jlab.org//volatile," > filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+
+# May '25 -> include option for early science files (only available from campaign 25.04.1)
+if [ $Energy == "10x130" ]
+then
+    xrdfs root://dtn-eic.jlab.org ls /volatile/eic/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/EpIC_v1.1.6-1.0/$Energy/q2_1_100 | sed "s,/volatile,root://dtn-eic.jlab.org//volatile," > filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+    exit
+else
+    xrdfs root://dtn-eic.jlab.org ls /volatile/eic/EPIC/RECO/$Camp/epic_craterlake/EXCLUSIVE/DVCS_ABCONV/$Energy | grep $BeamSet | sed "s,/volatile,root://dtn-eic.jlab.org//volatile," > filelists/inputFileList_ePIC_"$Camp"_"$Energy"_"$BeamSet".list
+    exit
+fi

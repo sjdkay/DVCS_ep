@@ -89,7 +89,7 @@ class ePIC_DVCS_TASK{
   void setMax_M2miss(Float_t cut){ fMax_M2miss = cut; }
 
   // Apply cuts
-  Bool_t applyCuts_Electron(std::vector<P3EVector> scate);
+  Bool_t applyCuts_Electron(P3EVector beame, std::vector<P3EVector> scate);
   Bool_t applyCuts_Photon(std::vector<P3EVector> scatg);
   Bool_t applyCuts_Proton(std::vector<P3EVector> scatp, TString sProtonDet="all");
   Bool_t applyCuts_DVCS(TString sProtonDet="all");

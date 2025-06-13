@@ -9,11 +9,13 @@ using namespace std;
 //---------------------------------------------------------------------
 // MAIN
 //---------------------------------------------------------------------
-void DVCSPlots(TString campaign, TString energy, TString setting){
+void DVCSPlots(TString campaign, TString energy, TString setting, TString comment="X"){
   //---------------------------------------------------------------------
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
-  TString inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
+  TString inFileName;
+  if(comment=="X") inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
+  else inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_" + comment + ".root";
   //TString inFileName = "/scratch/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);
@@ -167,7 +169,15 @@ void DVCSPlots(TString campaign, TString energy, TString setting){
   TH1D* h_M2miss2eg_MC = (TH1D*)inFile->Get("M2miss2eg_MC");
   TH1D* h_M2miss2eg_MCA = (TH1D*)inFile->Get("M2miss2eg_MCA");
   TH1D* h_M2miss2eg_RP = (TH1D*)inFile->Get("M2miss2eg_RP");
-  
+
+  // 2D angular distributions of particles
+  TH2D* h_2DAngles_eMC = (TH2D*)inFile->Get("2dangles_emc");
+  TH2D* h_2DAngles_gMC = (TH2D*)inFile->Get("2dangles_gmc");
+  TH2D* h_2DAngles_pMC = (TH2D*)inFile->Get("2dangles_pmc");
+  TH2D* h_2DAngles_eRP = (TH2D*)inFile->Get("2dangles_erp");
+  TH2D* h_2DAngles_gRP = (TH2D*)inFile->Get("2dangles_grp");
+  TH2D* h_2DAngles_pRP = (TH2D*)inFile->Get("2dangles_prp");
+
   //--------------------------------------------------------------------------------------
   // Set histogram line colours: MC raw - black; MC associated - red; Reconstructed - blue
   //--------------------------------------------------------------------------------------
@@ -923,9 +933,49 @@ void DVCSPlots(TString campaign, TString energy, TString setting){
   c12a->Print("B0benchmark_temp121.pdf");
   c12a->Close();
 
+  // CANVAS 13: 2D ANGULAR DISTRIBUTIONS (MC)
+  TCanvas* c13 = new TCanvas("c13","",1200,800);
+  c13->Divide(2,2);
+  c13->cd(1);
+  h_2DAngles_eMC->Rebin2D(2,4);
+  gPad->DrawFrame(-3.5,-3.5,3.5,3.5,"#phi vs #theta - e' (MC);;");
+  h_2DAngles_eMC->Draw("same colz pol");
+  c13->cd(2);
+  h_2DAngles_gMC->Rebin2D(2,4);
+  gPad->DrawFrame(-3.5,-3.5,3.5,3.5,"#phi vs #theta - #gamma (MC);;");
+  h_2DAngles_gMC->Draw("same colz pol");
+  c13->cd(3);
+  h_2DAngles_pMC->Rebin2D(2,4);
+  gPad->DrawFrame(-25,-25,25,25,"#phi vs #theta - p' (MC);;");
+  h_2DAngles_pMC->Draw("same colz pol");
+
+  c13->Print("B0benchmark_temp130.pdf");
+  c13->Close();
+
+  // CANVAS 13A: 2D ANGULAR DISTRIBUTIONS (RECO)
+  TCanvas* c13a = new TCanvas("c13a","",1200,800);
+  c13a->Divide(2,2);
+  c13a->cd(1);
+  h_2DAngles_eRP->Rebin2D(2,4);
+  gPad->DrawFrame(-3.5,-3.5,3.5,3.5,"#phi vs #theta - e' (Reco.);;");
+  h_2DAngles_eRP->Draw("same colz pol");
+  c13a->cd(2);
+  h_2DAngles_gRP->Rebin2D(2,4);
+  gPad->DrawFrame(-3.5,-3.5,3.5,3.5,"#phi vs #theta - #gamma (Reco.);;");
+  h_2DAngles_gRP->Draw("same colz pol");
+  c13a->cd(3);
+  h_2DAngles_pRP->Rebin2D(2,4);
+  gPad->DrawFrame(-25,-25,25,25,"#phi vs #theta - p' (Reco.);;");
+  h_2DAngles_pRP->Draw("same colz pol");
+
+  c13a->Print("B0benchmark_temp131.pdf");
+  c13a->Close();
+
   // Combine PDFs into one and clean up
   std::cout<<"...Cleaning up files..."<<std::endl;
-  TString filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
+  TString filePlots;
+  if(comment=="X") filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
+  else filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + comment + ".pdf";
   std::cout<<"Moving plots to "<<filePlots<<std::endl;
   TString pdfUniteCmd = "pdfunite B0benchmark*.pdf "+filePlots;
   gSystem->Exec(pdfUniteCmd);

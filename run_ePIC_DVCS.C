@@ -30,6 +30,7 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
   Int_t beamP{0};
   if(energy == "5x41") beamP = 41;
   else if(energy == "10x100") beamP = 100;
+  else if(energy == "10x130") beamP = 130;
   else if(energy == "18x275") beamP = 275;
   else beamP = 100;
   Float_t momCross2 = TMath::Power(beamP,4) + TMath::Power(fMass_proton,4) - 2*TMath::Power(beamP,2)*TMath::Power(fMass_proton,2);
@@ -41,11 +42,12 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
   objDVCS->setMax_tRP(TMath::Abs(tRPmax)*1.25);  // GeV^2
   //objDVCS->setMax_tRP(2);  // GeV^2
   objDVCS->setMax_M2miss(1);                     // GeV^2
+  //objDVCS->setMax_M2miss(99999);                 // GeV^2 - effective no cut
 
   // Set other behaviours
   objDVCS->setUsePID(kFALSE);
   objDVCS->setUseExplicitMatch(kTRUE);
-  objDVCS->setUseEventBeams(kFALSE);
+  objDVCS->setUseEventBeams(kTRUE);
 
   objDVCS->doAnalysis();
 }
