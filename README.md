@@ -22,7 +22,7 @@ eic-shell
 Here, the options `-b`, `-c` and `-e` reflect the desired beam geometry setting, campaign identifier and beam energy setting, respectively. The valid inputs for these parameters are as follows:
 - `-b`: "hiAcc" or "hiDiv" for the high acceptance (lower luminosity, narrower at the Roman Pots) and high divergence (higher luminosity, wider at the Roman Pots) settings
 - `-c`: YY.MM.N (eg. 23.11.0, 24.06.0), where YY is the year that the campaign was run, MM is the month that the campaign was run, and N is the campaign post-identifier number (typically "0" - check the campaign output directories for exact details)
-- `-e`: "5x41", "10x100", "18x275"
+- `-e`: "5x41", "10x100", "10x130", "18x275"
 
 These options can be specified in any order, and running the script without any options provides a help screen.
 
