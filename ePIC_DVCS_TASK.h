@@ -34,16 +34,18 @@ class ePIC_DVCS_TASK{
   Bool_t kUseEventBeams{kFALSE}; // Default to using beams averaged over file
 
   // Global variables
-  Float_t fMass_proton{0.938272};
-  Float_t fMass_electron{0.000511};
-
+  const Float_t fMass_proton{0.938272};
+  const Float_t fMass_electron{0.000511};
+  Float_t fPBeam_p{};     // Proton beam momentum
+  Float_t fPBeam_e{};     // Electron beam momentum
+  
   // Cut variables
-  Float_t fPMax_p{};     // Maximum scattered proton momentum
-  Float_t fPMax_e{};     // Maximum scattered electron momentum
-  Float_t fMinQ2{};      // Miniumum Q2
-  Float_t fMaxt_RP{};    // Maximum t expected from Roman Pots
-  Float_t fMax_Emiss{};  // Maximum missing energy from 3-particle final state
-  Float_t fMax_M2miss{}; // Maximum missing mass squared from 3-particle state
+  Float_t fPMaxFactor_p{}; // Maximum scattered proton momentum factor
+  Float_t fPMaxFactor_e{}; // Maximum scattered electron momentum factor
+  Float_t fMinQ2{};        // Miniumum Q2
+  Float_t fMaxt_RP{};      // Maximum t expected from Roman Pots
+  Float_t fMax_Emiss{};    // Maximum missing energy from 3-particle final state
+  Float_t fMax_M2miss{};   // Maximum missing mass squared from 3-particle state
   Float_t fxB_Tail{};
 
   // Kinematic variables used in cut functions
@@ -76,13 +78,14 @@ class ePIC_DVCS_TASK{
   void setInFileList(TString name);
   void setOutFile(TString name);
 
+  void setBeamMomenta();
+
   void setUsePID(Bool_t usePID){ kUsePID = usePID; }
   void setUseExplicitMatch(Bool_t useExplicitMatch){ kUseExplicitMatch = useExplicitMatch; }
   void setUseEventBeams (Bool_t useEventBeams){ kUseEventBeams = useEventBeams; }
 
-  // Set momenta cuts automatically
-  void setMomCuts(Float_t factor = 1.);
-  // Set other cuts - used in run macro
+    // Set other cuts - used in run macro
+  void setMomCutFactors(Float_t factore = 1., Float_t factorp = 1.);
   void setMin_Q2(Float_t cut)    { fMinQ2 = cut; }
   void setMax_tRP(Float_t cut)   { fMaxt_RP = cut; }
   void setMax_Emiss(Float_t cut) { fMax_Emiss = cut; }
