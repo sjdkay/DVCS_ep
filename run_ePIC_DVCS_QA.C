@@ -25,8 +25,8 @@ void run_ePIC_DVCS_QA(TString camp="Camp", TString energy="10x100", TString sett
   else sInFileList = "./filelists/inputFileList_ePIC_"+camp+"_"+energy+"_"+sett+".list";
   objDVCS->setInFileList(sInFileList);
   TString sOutFileName;
-  if(comment=="X") sOutFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
-  else sOutFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
+  if(comment=="X") sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
+  else sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
  
   objDVCS->setOutFile(sOutFileName);
 

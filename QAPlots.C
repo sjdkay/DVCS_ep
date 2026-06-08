@@ -49,7 +49,7 @@ void QAPlots(TString campaign, TString energy, TString setting){
   //---------------------------------------------------------------------
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
-  TString inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_QA.root";
+  TString inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_QA.root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);
 
@@ -1424,7 +1424,7 @@ void QAPlots(TString campaign, TString energy, TString setting){
 
   // Combine PDFs into one and clean up
   std::cout<<"...Cleaning up files..."<<std::endl;
-  TString filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/QA/DVCSPlots_" + campaign + "_" + energy + "_QA.pdf";
+  TString filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/Plots/Plots_" + campaign + "_" + energy + "_QA.pdf";
   std::cout<<"Moving plots to "<<filePlots<<std::endl;
   TString pdfUniteCmd = "pdfunite DVCSQA*.pdf "+filePlots;
   gSystem->Exec(pdfUniteCmd);

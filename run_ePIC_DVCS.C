@@ -28,10 +28,10 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
   TString sInFileList = "./filelists/inputFileList_ePIC_"+camp+"_"+energy+"_"+sett+".list";
   objDVCS->setInFileList(sInFileList);
   TString sOutFileName;
-  if(comment=="X") sOutFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
-  else sOutFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
+  if(comment=="X") sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
+  else sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
   
-  sOutFileName = "/scratch/oliver/bgas_test.root";
+  //sOutFileName = "/scratch/oliver/bgas_test.root";
   //sOutFileName = "/scratch/oliver/y_test.root";
   //sOutFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DIS_26.02.0_10x100_minQ2=1_MoreVetoes.root";
 

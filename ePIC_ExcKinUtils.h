@@ -12,6 +12,11 @@
 using P3EVector=ROOT::Math::PxPyPzEVector;
 using P3MVector=ROOT::Math::PxPyPzMVector;
 using MomVector=ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double_t>,ROOT::Math::DefaultCoordinateSystemTag>;
+using ROOT::Math::XYZVector;
+
+// Other ROOT::Math aliases
+using ROOT::Math::VectorUtil::Angle;
+using ROOT::Math::VectorUtil::boost;
 
 //-----------------------------------------------------------------------------------------------------------------------------
 // FUNCTION DEFINITIONS
@@ -153,6 +158,34 @@ Double_t calcT_eXBE(const V& p, const V& q, const V& pp, const V& X){
   double t = (pcorr-p).M2();
   return TMath::Abs(t);
 }
+// 3. Using scalar mass of scattered baryon (with e/e')
+template<typename V>
+Double_t calcT_eXBE(const V& e, const V& p, const V& ep, const Float_t& mb, const V& X){
+  // Calculate 'missing' momentum, ignoring scattered baryon vector
+  P3EVector p4miss((e+p-ep-X).X(),(e+p-ep-X).Y(),(e+p-ep-X).Z(),(e+p-ep-X).E());
+    
+  // Define corrected momentum vector using missing momentum and scattered baryon mass
+  Float_t pmiss_mag = p4miss.Vect().R();
+  Float_t pcorr_mag = TMath::Sqrt(TMath::Power(pmiss_mag,2) + TMath::Power(mb,2));
+  P3EVector pcorr(p4miss.Vect().X(), p4miss.Vect().Y(), p4miss.Vect().Z(), pcorr_mag);
+
+  double t = (pcorr-p).M2();
+  return TMath::Abs(t);
+}
+// 4. Using scalar mass of scattered baryon (with q)
+template<typename V>
+Double_t calcT_eXBE(const V& p, const V& q, const Float_t& mb, const V& X){
+  // Calculate 'missing' momentum, ignoring scattered baryon vector
+  P3EVector p4miss((p+q-X).X(),(p+q-X).Y(),(p+q-X).Z(),(p+q-X).E());
+    
+  // Define corrected momentum vector using missing momentum and scattered baryon mass
+  Float_t pmiss_mag = p4miss.Vect().R();
+  Float_t pcorr_mag = TMath::Sqrt(TMath::Power(pmiss_mag,2) + TMath::Power(mb,2));
+  P3EVector pcorr(p4miss.Vect().X(), p4miss.Vect().Y(), p4miss.Vect().Z(), pcorr_mag);
+
+  double t = (pcorr-p).M2();
+  return TMath::Abs(t);
+}
 
 // Calculate Mandelstam t - eBABE method using tRECO conventions
 // Include electron (beam and scattered) information into BABE method
@@ -253,6 +286,28 @@ Double_t calcT_eHe(const V& e, const V& p, const V& ep, const V& pp, const V& X)
   return TMath::Abs(t);
 }
 
+// Calculate Mandelstam t - "Method L"
+// Described in presentation from Jihee Kim 
+// ePIC Exclusive, Diffractive and Tagging PWG meeting; 10th November 2025
+template<typename V>
+Double_t calcT_MethodL(const V& e, const V& p, const V& ep, const Float_t& mb, const V& X){
+  // Calculate missing hadron vector from rest of final state
+  P3EVector pmiss = p - (ep + X - e);
+  
+  // Express scattered hadron in terms of lightcone variables
+  Double_t pplus = pmiss.E() + pmiss.Pz();
+  Double_t pT2 = TMath::Power(pmiss.Px(), 2) + TMath::Power(pmiss.Py(), 2);
+  
+  // Correct missing momentum using known mass of scattered hadron
+  Double_t num = TMath::Power(mb,2) + pT2;
+  Double_t pminus = num/pplus;
+  P3EVector pcorr(pmiss.Px(), pmiss.Py(), (pplus-pminus)/2, (pplus+pminus)/2);
+  
+  //double t = (pcorr-p).M2();
+  double t = -(p-pcorr).M2();
+  return TMath::Abs(t);
+}
+
 // Calculate missing kinematics (mass/energy/momentum)
 // 3-body final state: ab->cdf
 // Missing momentum
@@ -304,4 +359,37 @@ Double_t calcM2Miss_2Body(const V& a, const V& b, const V& c, const V& d){
 
   Float_t fM2Miss = TMath::Power(fEMiss,2) - TMath::Power(fPMiss,2);
   return fM2Miss;
+}
+
+// Calculate Trento Phi
+// Calculate angle between hadronic and leptonic planes (Trento phi)
+// Using planes defined by [k, q] and [q, g']
+// Source: Bachetta, A. et al; Phys. Rev. D (2004); eq. 16
+template <typename V>
+Double_t calcTrentoPhi_qg(const V& k, const V& p, const V& kprime, const V& gprime){  
+  // Before calculating angle, boost into gamma*-p rest frame
+  // Calculate q in lab frame
+  V q = (k-kprime);
+  // Boost vector
+  MomVector vTgtRest = (p+q).BoostToCM();
+
+  V kB = boost(k,vTgtRest);
+  V kpB = boost(kprime,vTgtRest);
+  V gpB = boost(gprime,vTgtRest);
+
+  MomVector k3 = kB.Vect();
+  MomVector kp3 = kpB.Vect();
+  MomVector gp3 = gpB.Vect();
+  MomVector qhat3 = (k3-kp3).Unit();
+
+  // Define leptonic plane using virtual photon and scattered electron
+  MomVector lNorm = qhat3.Cross(kp3);
+  lNorm /= lNorm.R();
+  // Define hadronic plane using q vector and scattered photon
+  MomVector hNorm = qhat3.Cross(gp3);
+  hNorm /= hNorm.R();
+
+  // Angle() function just returns magnitude of angle
+  // If photon vector has a component parallel to the leptonic normal, should be positive. If opposite, negative.
+  return TMath::Sign(1.,gp3.Dot(lNorm))*Angle(lNorm,hNorm);
 }

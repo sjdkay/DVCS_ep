@@ -47,14 +47,17 @@ class ePIC_DVCS_TASK{
   Float_t fMax_Emiss{};    // Maximum missing energy from 3-particle final state
   Float_t fMax_M2miss{};   // Maximum missing mass squared from 3-particle state
   Float_t fxB_Tail{};
-
+  Float_t fMin_EmPz{};     // Minimum (E-Pz) to remove radiative events
+  Float_t fMax_EmPz{};     // Maximum (E-Pz) to remove radiative events
+  
   // Kinematic variables used in cut functions
   Float_t fQ2{0.};
   Float_t fxB{1e-10};
   Float_t ft{0};
   Float_t fEmiss{0};
   Float_t fM2miss{0};
-
+  Float_t fEmPz{0};
+  
   // Objects for undoing afterburn boost
   Float_t fXAngle{-0.025}; // Crossing angle in radians
   Float_t fRotX{};
@@ -90,7 +93,8 @@ class ePIC_DVCS_TASK{
   void setMax_tRP(Float_t cut)   { fMaxt_RP = cut; }
   void setMax_Emiss(Float_t cut) { fMax_Emiss = cut; }
   void setMax_M2miss(Float_t cut){ fMax_M2miss = cut; }
-
+  void setEmPzCuts(Float_t min, Float_t max){ fMin_EmPz = min; fMax_EmPz = max; }
+  
   // Apply cuts
   Bool_t applyCuts_Electron(P3EVector beame, std::vector<P3EVector> scate);
   Bool_t applyCuts_Photon(std::vector<P3EVector> scatg);
@@ -104,9 +108,11 @@ class ePIC_DVCS_TASK{
   
   // Calculation of kinematic quantities
   // Event kinematics: t, Q2, xB, Phi
-  Double_t calcTrentoPhi_qp(P3EVector k, P3EVector kprime, P3EVector pprime);
-  Double_t calcTrentoPhi_pg(P3EVector k, P3EVector kprime, P3EVector pprime, P3EVector gprime);
-  Double_t calcTrentoPhi_qg(P3EVector k, P3EVector kprime, P3EVector gprime);
+  //Double_t calcTrentoPhi_qp(P3EVector k, P3EVector kprime, P3EVector pprime);
+  //Double_t calcTrentoPhi_qp(P3EVector k, P3EVector p, P3EVector kprime, P3EVector pprime);
+  Double_t calcTrentoPhi_qg(P3EVector k, P3EVector p, P3EVector kprime, P3EVector pprime);
+  //Double_t calcTrentoPhi_pg(P3EVector k, P3EVector kprime, P3EVector pprime, P3EVector gprime);
+  //Double_t calcTrentoPhi_qg(P3EVector k, P3EVector kprime, P3EVector gprime);
   Double_t calcTrentoPhi_4Vec(P3EVector k, P3EVector p, P3EVector kprime, P3EVector pprime);
   Double_t calcgT_ij(P3EVector q, P3EVector p, Int_t i, Int_t j);
   Double_t calcepsT_ij(P3EVector q, P3EVector p, Int_t i, Int_t j);

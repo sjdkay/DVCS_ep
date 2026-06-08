@@ -1,5 +1,4 @@
 // ePIC DVCS analysis class definition
-
 #include "preLoadLib.hh"
 
 // Data model headers
@@ -59,7 +58,14 @@ ePIC_DVCS_TASK::ePIC_DVCS_TASK(TString camp, TString energy, TString sett){
 // Set input file list
 void ePIC_DVCS_TASK::setInFileList(TString name){
   sInList = name;
-  std::cout<<"Input file list used: "<<name<<std::endl;
+  if(gSystem->AccessPathName(sInList) == kTRUE){ // Check if provided file list is openable, if it isn't, exit
+    cout << "File list - " << sInList << " not found." << endl;
+    cout << "Check pathing and re-run" << endl;
+    std::exit(EXIT_FAILURE);
+  }
+  else if(gSystem->AccessPathName(sInList) == kFALSE){
+    std::cout<<"Input file list used: "<<sInList<<std::endl;
+  }
 }
 
 // Set output file name and create new
@@ -333,39 +339,39 @@ void ePIC_DVCS_TASK::undoAfterburn(P3EVector& a){
 // Calculate angle between hadronic and leptonic planes (Trento phi)
 // Using planes defined by [k, q] and [q, p']
 // Source: Bachetta, A. et al; Phys. Rev. D (2004); eq. 16
-Double_t ePIC_DVCS_TASK::calcTrentoPhi_qg(P3EVector k, P3EVector p, P3EVector kprime, P3EVector gprime){  
-  // Before calculating angle, boost into target rest frame
-  //MomVector vTgtRest = p.BoostToCM();
+// Double_t ePIC_DVCS_TASK::calcTrentoPhi_qg(P3EVector k, P3EVector p, P3EVector kprime, P3EVector gprime){  
+//   // Before calculating angle, boost into target rest frame
+//   //MomVector vTgtRest = p.BoostToCM();
 
-  // Before calculating angle, boost into gamma*-p rest frame
-  // Calculate q in lab frame
-  P3EVector q = (k-kprime);
-  // Boost vector
-  MomVector vTgtRest = (p+q).BoostToCM();
+//   // Before calculating angle, boost into gamma*-p rest frame
+//   // Calculate q in lab frame
+//   P3EVector q = (k-kprime);
+//   // Boost vector
+//   MomVector vTgtRest = (p+q).BoostToCM();
 
-  k = boost(k,vTgtRest);
-  kprime = boost(kprime,vTgtRest);
-  gprime = boost(gprime,vTgtRest);
+//   k = boost(k,vTgtRest);
+//   kprime = boost(kprime,vTgtRest);
+//   gprime = boost(gprime,vTgtRest);
 
-  MomVector k3 = k.Vect();
-  MomVector kp3 = kprime.Vect();
-  MomVector gp3 = gprime.Vect();
-  MomVector qhat3 = (k3-kp3).Unit();
+//   MomVector k3 = k.Vect();
+//   MomVector kp3 = kprime.Vect();
+//   MomVector gp3 = gprime.Vect();
+//   MomVector qhat3 = (k3-kp3).Unit();
 
-  // Define leptonic plane using virtual photon and scattered electron
-  MomVector lNorm = qhat3.Cross(kp3);
-  lNorm /= lNorm.R();
-  // Define hadronic plane using q vector and scattered photon
-  MomVector hNorm = qhat3.Cross(gp3);
-  hNorm /= hNorm.R();
+//   // Define leptonic plane using virtual photon and scattered electron
+//   MomVector lNorm = qhat3.Cross(kp3);
+//   lNorm /= lNorm.R();
+//   // Define hadronic plane using q vector and scattered photon
+//   MomVector hNorm = qhat3.Cross(gp3);
+//   hNorm /= hNorm.R();
 
-  // Angle() function just returns magnitude of angle
-  // If photon vector has a component parallel to the leptonic normal, should be positive. If opposite, negative.
-  float phi = TMath::Sign(1.,gp3.Dot(lNorm))*Angle(lNorm,hNorm);
+//   // Angle() function just returns magnitude of angle
+//   // If photon vector has a component parallel to the leptonic normal, should be positive. If opposite, negative.
+//   float phi = TMath::Sign(1.,gp3.Dot(lNorm))*Angle(lNorm,hNorm);
 
-  if (phi < 0) return phi+2*TMath::Pi();
-  else return phi;
-}
+//   if (phi < 0) return phi+2*TMath::Pi();
+//   else return phi;
+// }
 
 // Calculate angle between planes of qp and qg
 Double_t ePIC_DVCS_TASK::calcPhiQPQG(P3EVector k, P3EVector p, P3EVector kprime, P3EVector gprime){
@@ -412,13 +418,23 @@ void ePIC_DVCS_TASK::doAnalysis(){
   //---------------------------------------------------------
   // IF TESTING, LOAD TEST FILE LIST
   //sInList="./filelists/inputFileList_BGastestSingle.list";
-  sInList="./filelists/inputFileList_BGastest.list";
+  //sInList="./filelists/inputFileList_BGastest.list";
 
   ifstream fileListStream;
   fileListStream.open(sInList);
   string fileName;
   TFile* inputRootFile;
-  
+
+  int NumFiles = 0;  
+  // Determine number of files in file list
+  while(getline(fileListStream,fileName)){
+    NumFiles++;
+  }
+  cout << "Proccessing - " << NumFiles << " total files in input file list" << endl;
+  // Reset file
+  fileListStream.clear();
+  fileListStream.seekg(0, fileListStream.beg);
+
   //---------------------------------------------------------
   // Setup: Declare histograms
   //---------------------------------------------------------
@@ -491,14 +507,17 @@ void ePIC_DVCS_TASK::doAnalysis(){
   
   // Start file loop
   while(getline(fileListStream,fileName)){
-    std::cout<<"Input file "<<fileCounter<<" : "<<fileName<<std::endl;
+    //std::cout<<"Input file "<<fileCounter<<" : "<<fileName<<std::endl;
     
     // Open podio reader
+    if ( fileCounter % ( NumFiles / 10 ) == 0 ) {
+      cout << "Processed " << setw(4) << ceil(((1.0*fileCounter)/(1.0*NumFiles))*100.0) << " % of Files - " << fileCounter << endl;
+    }
     // New reader for each file
     auto reader = podio::ROOTReader();
     reader.openFile(fileName);
     Int_t nEntries = reader.getEntries("events");
-    std::cout<<"File has "<<nEntries<<" events..."<<std::endl;
+    //std::cout<<"File has "<<nEntries<<" events..."<<std::endl;
     
     // Booleans - check for vetoes
     bool kBarrelPos_Rec{false};    // Positive track outside FF region?
@@ -548,7 +567,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	std::cout<<"First file - beams\n\te:"<<beame4<<"\n\tp:"<<beamp4<<std::endl;
       } // fi (fileCounter == 0)
-      else std::cout<<"Using beams from first file."<<std::endl;
+      //else std::cout<<"Using beams from first file."<<std::endl;
     } // fi (!kUseEventBeams)
 
     // (Re)Run reader for main events

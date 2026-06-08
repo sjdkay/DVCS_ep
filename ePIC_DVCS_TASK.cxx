@@ -43,7 +43,14 @@ ePIC_DVCS_TASK::ePIC_DVCS_TASK(TString camp, TString energy, TString sett){
 // Set input file list
 void ePIC_DVCS_TASK::setInFileList(TString name){
   sInList = name;
-  std::cout<<"Input file list used: "<<name<<std::endl;
+  if(gSystem->AccessPathName(sInList) == kTRUE){ // Check if provided file list is openable, if it isn't, exit
+    cout << "File list - " << sInList << " not found." << endl;
+    cout << "Check pathing and re-run" << endl;
+    std::exit(EXIT_FAILURE);
+  }
+  else if(gSystem->AccessPathName(sInList) == kFALSE){
+    std::cout<<"Input file list used: "<<sInList<<std::endl;
+  }
 }
 
 // Set output file name and create new
@@ -946,7 +953,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	std::cout<<"File 1 - beams\n\te:"<<beame4<<"\n\tp:"<<beamp4<<std::endl;
       } // fi (fileCounter == 1)
-      else std::cout<<"Using beams from first file."<<std::endl;
+      //else std::cout<<"Using beams from first file."<<std::endl;
       
     } // fi (kUseEventBeams)
 

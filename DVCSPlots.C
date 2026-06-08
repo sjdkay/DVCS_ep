@@ -14,8 +14,8 @@ void DVCSPlots(TString campaign, TString energy, TString setting, TString commen
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
   TString inFileName;
-  if(comment=="X") inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
-  else inFileName = "$EIC_WORK_DIR/DVCS_Analysis/RootFiles/ePIC_DVCS_" + campaign + "_" + energy + "_" + comment + ".root";
+  if(comment=="X") inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
+  else inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + comment + ".root";
   //TString inFileName = "/scratch/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);
@@ -974,8 +974,8 @@ void DVCSPlots(TString campaign, TString energy, TString setting, TString commen
   // Combine PDFs into one and clean up
   std::cout<<"...Cleaning up files..."<<std::endl;
   TString filePlots;
-  if(comment=="X") filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
-  else filePlots = "$EIC_WORK_DIR/DVCS_Analysis/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + comment + ".pdf";
+  if(comment=="X") filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output//Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
+  else filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + comment + ".pdf";
   std::cout<<"Moving plots to "<<filePlots<<std::endl;
   TString pdfUniteCmd = "pdfunite B0benchmark*.pdf "+filePlots;
   gSystem->Exec(pdfUniteCmd);
