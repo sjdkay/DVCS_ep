@@ -13,7 +13,15 @@ void TDRPlots(TString campaign, TString energy, TString setting){
   //---------------------------------------------------------------------
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
-  TString inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
+  char* DVCS_ep_Path_char;
+  DVCS_ep_Path_char = getenv("DVCS_ep");
+  if (DVCS_ep_Path_char == nullptr) {
+      cerr << "!!!!! ERROR !!!!! DVCS_ep environment variable not set !!!!! ERROR !!!!!" << endl;
+      cerr << "!!!!! ERROR !!!!! Source the setup.sh (or .csh) script and rerun !!!!! ERROR !!!!!" << endl;
+      exit(0);
+  }
+  TString DVCS_ep_Path(DVCS_ep_Path_char);
+  TString inFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
   //TString inFileName = "/scratch/oliver/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);

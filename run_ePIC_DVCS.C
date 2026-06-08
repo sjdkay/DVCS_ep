@@ -12,10 +12,19 @@ const Float_t fMass_electron{0.000511};
 
 void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="test", TString comment="X"){
 
- std::cout<<"----------------------------------------------------"<<std::endl;
+  std::cout<<"----------------------------------------------------"<<std::endl;
   std::cout<<"                 ePIC DVCS Analysis                 "<<std::endl;
   std::cout<<"----------------------------------------------------"<<std::endl;
   std::cout<<std::endl;
+
+  char* DVCS_ep_Path_char;
+  DVCS_ep_Path_char = getenv("DVCS_ep");
+  if (DVCS_ep_Path_char == nullptr) {
+      cerr << "!!!!! ERROR !!!!! DVCS_ep environment variable not set !!!!! ERROR !!!!!" << endl;
+      cerr << "!!!!! ERROR !!!!! Source the setup.sh (or .csh) script and rerun !!!!! ERROR !!!!!" << endl;
+      exit(0);
+  }
+  TString DVCS_ep_Path(DVCS_ep_Path_char);
   
   // Initialize DVCS analysis object
   std::cout<<"Settings:"<<std::endl;
@@ -25,11 +34,11 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
   
   ePIC_DVCS_TASK *objDVCS = new ePIC_DVCS_TASK(camp,energy,sett);
   
-  TString sInFileList = "./filelists/inputFileList_ePIC_"+camp+"_"+energy+"_"+sett+".list";
+  TString sInFileList = DVCS_ep_Path+"/filelists/inputFileList_ePIC_"+camp+"_"+energy+"_"+sett+".list";
   objDVCS->setInFileList(sInFileList);
   TString sOutFileName;
-  if(comment=="X") sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
-  else sOutFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
+  if(comment=="X") sOutFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+sett+".root";
+  else sOutFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_"+camp+"_"+energy+"_"+comment+".root";
   
   //sOutFileName = "/scratch/oliver/bgas_test.root";
   //sOutFileName = "/scratch/oliver/y_test.root";

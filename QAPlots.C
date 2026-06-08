@@ -49,7 +49,15 @@ void QAPlots(TString campaign, TString energy, TString setting){
   //---------------------------------------------------------------------
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
-  TString inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_QA.root";
+  char* DVCS_ep_Path_char;
+  DVCS_ep_Path_char = getenv("DVCS_ep");
+  if (DVCS_ep_Path_char == nullptr) {
+      cerr << "!!!!! ERROR !!!!! DVCS_ep environment variable not set !!!!! ERROR !!!!!" << endl;
+      cerr << "!!!!! ERROR !!!!! Source the setup.sh (or .csh) script and rerun !!!!! ERROR !!!!!" << endl;
+      exit(0);
+  }
+  TString DVCS_ep_Path(DVCS_ep_Path_char);
+  TString inFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_" + campaign + "_" + energy + "_QA.root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);
 
@@ -1424,7 +1432,7 @@ void QAPlots(TString campaign, TString energy, TString setting){
 
   // Combine PDFs into one and clean up
   std::cout<<"...Cleaning up files..."<<std::endl;
-  TString filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/Plots/Plots_" + campaign + "_" + energy + "_QA.pdf";
+  TString filePlots = DVCS_ep_Path+"/Output/Plots/Plots_" + campaign + "_" + energy + "_QA.pdf";
   std::cout<<"Moving plots to "<<filePlots<<std::endl;
   TString pdfUniteCmd = "pdfunite DVCSQA*.pdf "+filePlots;
   gSystem->Exec(pdfUniteCmd);

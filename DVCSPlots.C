@@ -13,9 +13,17 @@ void DVCSPlots(TString campaign, TString energy, TString setting, TString commen
   //---------------------------------------------------------------------
   // Get data file from DVCSAnalysis script
   //---------------------------------------------------------------------
+  char* DVCS_ep_Path_char;
+  DVCS_ep_Path_char = getenv("DVCS_ep");
+  if (DVCS_ep_Path_char == nullptr) {
+      cerr << "!!!!! ERROR !!!!! DVCS_ep environment variable not set !!!!! ERROR !!!!!" << endl;
+      cerr << "!!!!! ERROR !!!!! Source the setup.sh (or .csh) script and rerun !!!!! ERROR !!!!!" << endl;
+      exit(0);
+  }
+  TString DVCS_ep_Path(DVCS_ep_Path_char);
   TString inFileName;
-  if(comment=="X") inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
-  else inFileName = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + comment + ".root";
+  if(comment=="X") inFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
+  else inFileName = DVCS_ep_Path+"/Output/ePIC_DVCS_" + campaign + "_" + energy + "_" + comment + ".root";
   //TString inFileName = "/scratch/ePIC_DVCS_" + campaign + "_" + energy + "_" + setting + ".root";
   cout<<"Input file: "<<inFileName<<endl;
   TFile* inFile = new TFile(inFileName);
@@ -974,8 +982,8 @@ void DVCSPlots(TString campaign, TString energy, TString setting, TString commen
   // Combine PDFs into one and clean up
   std::cout<<"...Cleaning up files..."<<std::endl;
   TString filePlots;
-  if(comment=="X") filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output//Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
-  else filePlots = "/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep/Output/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + comment + ".pdf";
+  if(comment=="X") filePlots = DVCS_ep_Path+"/Output//Plots/DVCSPlots_" + campaign + "_" + energy + "_" + setting + ".pdf";
+  else filePlots = DVCS_ep_Path+"/Output/Plots/DVCSPlots_" + campaign + "_" + energy + "_" + comment + ".pdf";
   std::cout<<"Moving plots to "<<filePlots<<std::endl;
   TString pdfUniteCmd = "pdfunite B0benchmark*.pdf "+filePlots;
   gSystem->Exec(pdfUniteCmd);
