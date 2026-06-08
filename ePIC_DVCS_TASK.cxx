@@ -554,6 +554,16 @@ void ePIC_DVCS_TASK::doAnalysis(){
   string fileName;
   TFile* inputRootFile;
 
+  int NumFiles = 0;  
+  // Determine number of files in file list
+  while(getline(fileListStream,fileName)){
+    NumFiles++;
+  }
+  cout << "Proccessing - " << NumFiles << " total files in input file list" << endl;
+  // Reset file
+  fileListStream.clear();
+  fileListStream.seekg(0, fileListStream.beg);
+
   //---------------------------------------------------------
   // Setup: Declare histograms
   //---------------------------------------------------------
@@ -833,7 +843,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
     //---------------------------------------------------------
     // Get file
     TString tmp{fileName};
-    std::cout<<"Input file "<<fileCounter<<" : "<<tmp<<std::endl;
+    if ( fileCounter % ( NumFiles / 10 ) == 0 ) {
+      cout << "Processed " << setw(4) << ceil(((1.0*fileCounter)/(1.0*NumFiles))*100.0) << " % of Files - " << fileCounter << endl;
+    }
+    //std::cout<<"Input file "<<fileCounter<<" : "<<tmp<<std::endl;
     auto inputRootFile = TFile::Open(tmp);
     if(!inputRootFile){ std::cout<<"MISSING_ROOT_FILE"<<tmp<<endl; continue;}
     fileCounter++;
@@ -842,7 +855,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
     TTree * evtTree = (TTree*)inputRootFile->Get("events");
     if (!(inputRootFile->GetListOfKeys()->Contains("events"))) continue;
     int numEvents = evtTree->GetEntries();
-    std::cout<<"File has "<<numEvents<<" events..."<<std::endl;
+    //std::cout<<"File has "<<numEvents<<" events..."<<std::endl;
 
     //---------------------------------------------------------
     // Declare TTreeReader, and choose appropriate branches
