@@ -7,7 +7,7 @@ using namespace ROOT::Math;
 
 #include "TString.h"
 #include "Process_Gen_Output.h"
-//#include "ePICStyle.C"
+#include "ePICStyle.C"
 #include <vector>
 
 void Process_Gen_Output(TString InFile = ""){
@@ -39,24 +39,30 @@ void Process_Gen_Output(TString InFile = ""){
   TH1D* h1_Q2Diff[nQ2bins][nxBbins][ntbins];
   TH1D* h1_xBDiff[nQ2bins][nxBbins][ntbins];
   TH1D* h1_tDiff[nQ2bins][nxBbins][ntbins];
+  TH1D* h1_tDiff_v2[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
 
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
+      	h1_tDiff_v2[binq2][binxB] = new TH1D(Form("tdiff_v2[%i][%i]",binq2,binxB),
+						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t| [GeV^{2}];",
+						     q2edges[binq2],q2edges[binq2+1],
+						     xBedges[binxB],xBedges[binxB+1]),
+						20, 0., 2.);
       for(int bint{0}; bint<ntbins; bint++){
 	h1_Q2Diff[binq2][binxB][bint] = new TH1D(Form("q2diff[%i][%i][%i]",binq2,binxB,bint),
-						 Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;Q^{2} [GeV^{2}];",
+						 Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;Q^{2} [GeV^{2}];",
 						      q2edges[binq2],q2edges[binq2+1],
 						      xBedges[binxB],xBedges[binxB+1],
 						      tedges[bint],tedges[bint+1]),
 						 550, 0., 110.);
 	h1_xBDiff[binq2][binxB][bint] = new TH1D(Form("xbdiff[%i][%i][%i]",binq2,binxB,bint),
-						 Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;x_{B};",
+						 Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;x_{B};",
 						      q2edges[binq2],q2edges[binq2+1],
 						      xBedges[binxB],xBedges[binxB+1],
 						      tedges[bint],tedges[bint+1]),
 						 10000, 0., 1.);
 	h1_tDiff[binq2][binxB][bint] = new TH1D(Form("tdiff[%i][%i][%i]",binq2,binxB,bint),
-						Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;|t| [GeV^{2}];",
+						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;|t| [GeV^{2}];",
 						     q2edges[binq2],q2edges[binq2+1],
 						     xBedges[binxB],xBedges[binxB+1],
 						     tedges[bint],tedges[bint+1]),
@@ -102,6 +108,7 @@ void Process_Gen_Output(TString InFile = ""){
       if(q2edges[binq2] < Q2 && Q2 < q2edges[binq2+1]){
 	for(int binxB{0}; binxB<nxBbins; binxB++){
 	  if(xBedges[binxB] < xB && xB < xBedges[binxB+1]){
+	    h1_tDiff_v2[binq2][binxB]->Fill(t); // Fill t dist for this x/Q2 bin
 	    for(int bint{0}; bint<ntbins; bint++){
 	      if(tedges[bint] < t && t < tedges[bint+1]){
 		// Fill hists
@@ -115,6 +122,31 @@ void Process_Gen_Output(TString InFile = ""){
       }
     } // End Q2 binning loop
   } // End event loop
+
+  TCanvas* c_Q2xB_Results[9];
+  TLatex *Q2_Range_Text[9];
+  TString OutPdf = Form("%s_Q2xB_Binned_tDists.pdf", (InFile.Remove(InFile.Length() - 17)).Data());
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    c_Q2xB_Results[binq2] = new TCanvas(Form("c_Q2xB_Results_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+    c_Q2xB_Results[binq2]->Divide(4,3); 
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      c_Q2xB_Results[binq2]->cd(binxB+1);
+      h1_tDiff_v2[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      h1_tDiff_v2[binq2][binxB]->Draw("");
+    }
+    c_Q2xB_Results[binq2]->cd(12);
+    Q2_Range_Text[binq2] = new TLatex(0.2, 0.5, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
+    Q2_Range_Text[binq2]->Draw();
+    if(binq2 == 0){
+      c_Q2xB_Results[binq2]->Print(OutPdf + "(");
+    }
+    else if(binq2 == 7){
+      c_Q2xB_Results[binq2]->Print(OutPdf + ")");
+    }
+    else{
+      c_Q2xB_Results[binq2]->Print(OutPdf);
+    }
+  }
   
   ofile->Write(); // Write histograms to file
   ofile->Close(); // Close output file
