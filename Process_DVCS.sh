@@ -6,17 +6,9 @@
 ### A script to create and submit analysis jobs to the JLab farm.
 ### As is, takes 3 arguments, campaign, beam energy combination and setting/comment for filelist
 
-if [ ! -n "${DVCS_ep+x}" ]; then
-    echo "!!!! Warning !!!!"
-    echo "Environemnt variable DVCS_ep not set, source setup.sh or setup.csh first!"
-    echo "Exiting now!"
-    echo "!!!! Warning !!!!"
-    exit 1
-fi
-
-SimDir=${DVCS_ep} # Put in the path of your directory here (where your eic-shell is)
+RunDir="/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep" # Put in the path of your directory here 
 echo "Running as ${USER}"
-echo "Assuming simulation directory - ${SimDir}"
+echo "Assuming simulation directory - ${RunDir}"
 
 Campaign=$1 # First arg is the campaign version to run
 if [[ -z "$1" ]]; then
@@ -35,7 +27,7 @@ fi
 Setting="${3:-}" # Assigns third argument if it was provided, set to blank if not
 
 # Construct file list from arguments and check it exists
-FileList="${DVCS_ep}/filelists/inputFileList_ePIC_${Campaign}_${BeamE}_${Setting}.list"
+FileList="${RunDir}/filelists/inputFileList_ePIC_${Campaign}_${BeamE}_${Setting}.list"
 if [ ! -f ${FileList} ]; then
     echo "${FileList} not found!"
     echo "Check path and input arguments carefully!"
@@ -61,9 +53,9 @@ do
     printf -v ChunkNum "%03d" "${i}" # Convert integer to a padded 3 digit integer
     JOBNAME="DVCS_Analysis_${Campaign}_${BeamE}_${Setting}_${ChunkNum}"
     # The line below is the "guts" of this script. This is the script or job we will actually run on the farm node. Change the pathing to your script as needed. Submit the args as needed.
-    COMMAND="${DVCS_ep}/Process_DVCS_Job.sh ${Campaign} ${BeamE} ${Setting}_${ChunkNum}"
+    COMMAND="${RunDir}/Process_DVCS_Job.sh ${Campaign} ${BeamE} ${Setting}_${ChunkNum}"
     echo "Submitting batch job"
-    eval "swif2 add-job ${Workflow} -name ${JOBNAME} -disk 1GB -ram 4GB -stdout /farm_out/${USER}/swif/${Workflow}/out/${JOBNAME}.out -stderr /farm_out/${USER}/swif/${Workflow}/err/${JOBNAME}.err ${COMMAND}"
+    eval "swif2 add-job -create -workflow ${Workflow} -name ${JOBNAME} -disk 1GB -ram 4GB -account eic -partition production -stdout /farm_out/${USER}/swif/${Workflow}/out/${JOBNAME}.out -stderr /farm_out/${USER}/swif/${Workflow}/err/${JOBNAME}.err ${COMMAND}"
     echo " "
 done
 

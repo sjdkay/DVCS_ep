@@ -6,17 +6,10 @@
 ### A script to process DVCS file lists with provided arguments.
 ### As is, takes 3 arguments, campaign, beam energy combination and setting/comment for filelist
 
-if [ ! -n "${DVCS_ep+x}" ]; then
-    echo "!!!! Warning !!!!"
-    echo "Environemnt variable DVCS_ep not set, source setup.sh or setup.csh first!"
-    echo "Exiting now!"
-    echo "!!!! Warning !!!!"
-    exit 1
-fi
-
-SimDir=${DVCS_ep} # Put in the path of your directory here (where your eic-shell is)
+RunDir="/group/eic/users/sjdkay/ePIC/DVCS/DVCS_ep" # Put in the path of your directory here 
+# Put in the path of your directory here (where your eic-shell is)
 echo "Running as ${USER}"
-echo "Assuming simulation directory - ${SimDir}"
+echo "Assuming directory - ${RunDir}"
 
 Campaign=$1 # First arg is the campaign version to run
 if [[ -z "$1" ]]; then
@@ -35,7 +28,7 @@ fi
 Setting="${3:-}" # Assigns third argument if it was provided, set to blank if not
 
 # Construct file list from arguments and check it exists
-FileList="${DVCS_ep}/filelists/inputFileList_ePIC_${Campaign}_${BeamE}_${Setting}.list"
+FileList="${RunDir}/filelists/inputFileList_ePIC_${Campaign}_${BeamE}_${Setting}.list"
 if [ ! -f ${FileList} ]; then
     echo "${FileList} not found!"
     echo "Check path and input arguments carefully!"
@@ -46,13 +39,13 @@ echo "Processing - ${FileList}"
 
 export EICSHELL=/group/eic/users/${USER}/ePIC/eic-shell # Must point to where your eic-shell is!
 cat <<EOF | $EICSHELL
-cd ${DVCS_ep}
+cd ${RunDir}
 source setup.sh
 root -l -b -q 'run_ePIC_DVCS.C("${Campaign}", "${BeamE}", "${Setting}")'
 EOF
 
 sleep 2
 
-rm $FileList
+#rm $FileList
 
 exit 0

@@ -43,14 +43,7 @@ ePIC_DVCS_TASK::ePIC_DVCS_TASK(TString camp, TString energy, TString sett){
 // Set input file list
 void ePIC_DVCS_TASK::setInFileList(TString name){
   sInList = name;
-  if(gSystem->AccessPathName(sInList) == kTRUE){ // Check if provided file list is openable, if it isn't, exit
-    cout << "File list - " << sInList << " not found." << endl;
-    cout << "Check pathing and re-run" << endl;
-    std::exit(EXIT_FAILURE);
-  }
-  else if(gSystem->AccessPathName(sInList) == kFALSE){
-    std::cout<<"Input file list used: "<<sInList<<std::endl;
-  }
+  std::cout<<"Input file list used: "<<name<<std::endl;
 }
 
 // Set output file name and create new
@@ -554,16 +547,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
   string fileName;
   TFile* inputRootFile;
 
-  int NumFiles = 0;  
-  // Determine number of files in file list
-  while(getline(fileListStream,fileName)){
-    NumFiles++;
-  }
-  cout << "Proccessing - " << NumFiles << " total files in input file list" << endl;
-  // Reset file
-  fileListStream.clear();
-  fileListStream.seekg(0, fileListStream.beg);
-
   //---------------------------------------------------------
   // Setup: Declare histograms
   //---------------------------------------------------------
@@ -649,14 +632,14 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
   // DVCS event kinematics - Generated particles
   TH1D* h_t_MC    = new TH1D("t_MC"   , ";|t|(MC) [(GeV/c^{2})^{2}]"  , 40, 0., 2.);
-  TH1D* h_Q2_MC   = new TH1D("Q2_MC"  , ";Q^{2}(MC) [(GeV/c^{2})^{2}]", 500, 0.0, 10.0);
+  TH1D* h_Q2_MC   = new TH1D("Q2_MC"  , ";Q^{2}(MC) [(GeV/c^{2})^{2}]", 5000, 0., 100.);
   TH1D* h_xB_MC   = new TH1D("xB_MC"  , ";log_{10}(x_{B})(MC)"    , 100, -5, 0);
   TH1D* h_y_MC    = new TH1D("y_MC"   , ";y(MC)"                  , 100, 0, 1);
   TH1D* h_TPhi_MC = new TH1D("tphi_MC", ";#phi_{h}(MC) [rad]"     , 175, -3.5, 3.5);
 
   // DVCS event kinematics - Associated MC particles
   TH1D* h_t_MCA    = new TH1D("t_MCA"   , ";|t|(MC|Reco) [(GeV/c^{2})^{2}]"  , 40, 0., 2.);
-  TH1D* h_Q2_MCA   = new TH1D("Q2_MCA"  , ";Q^{2}(MC|Reco) [(GeV/c^{2})^{2}]", 500, 0.0, 10.0);
+  TH1D* h_Q2_MCA   = new TH1D("Q2_MCA"  , ";Q^{2}(MC|Reco) [(GeV/c^{2})^{2}]", 5000, 0., 100.);
   TH1D* h_xB_MCA   = new TH1D("xB_MCA"  , ";log_{10}(x_{B})(MC|Reco)"    , 100, -5, 0);
   TH1D* h_y_MCA    = new TH1D("y_MCA"   , ";y(MCA)"                      , 100, 0, 1);
   TH1D* h_TPhi_MCA = new TH1D("tphi_MCA", ";#phi_{h}(MC|Reco) [rad]"     , 175, -3.5, 3.5);
@@ -664,7 +647,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
   // DVCS event kinematics - Reconstructed particles
   TH1D* h_t_RP     = new TH1D("t_RP"    , ";|t|(Reco) [(GeV/c^{2})^{2}]"  , 40, 0., 2.);
   TH1D* h_t_RPP    = new TH1D("t_RPP"   , ";|t|(Reco) [(GeV/c^{2})^{2}]"  , 40, 0., 2.); // Roman Pots
-  TH1D* h_Q2_RP    = new TH1D("Q2_RP"   , ";Q^{2}(Reco) [(GeV/c^{2})^{2}]", 500, 0.0, 10.0);
+  TH1D* h_Q2_RP    = new TH1D("Q2_RP"   , ";Q^{2}(Reco) [(GeV/c^{2})^{2}]", 5000, 0., 100.);
   TH1D* h_xB_RP    = new TH1D("xB_RP"   , ";log_{10}(x_{B})(Reco)"    , 100, -5, 0);
   TH1D* h_y_RP     = new TH1D("y_RP"    , ";y(Reco)"                  , 100, 0, 1);
   TH1D* h_TPhi_RP  = new TH1D("tphi_RP" , ";#phi_{h}(Reco) [rad]"     , 175, -3.5, 3.5);
@@ -767,13 +750,14 @@ void ePIC_DVCS_TASK::doAnalysis(){
   /*TH2D* h_2D_xVQ2_MC = new TH2D("2d_xvq2_mc",";log_{10}(x_{B,MC});Q^{2}_{MC} [GeV^{2}]",100,-5.,0.,450,1.,10.);
   TH2D* h_2D_xVQ2_MCA = new TH2D("2d_xvq2_mca",";log_{10}(x_{B,MC|Reco});Q^{2}_{MC|Reco} [GeV^{2}]",100,-5.,0.,450,1.,10.);
   TH2D* h_2D_xVQ2_RP = new TH2D("2d_xvq2_rp",";log_{10}(x_{B,Reco});Q^{2}_{Reco} [GeV^{2}]",100,-5.,0.,450,1.,10.);*/
-  TH2D* h_2D_tVQ2_MC = new TH2D("2d_tvq2_mc",";t_{MC} [GeV^{2}];Q^{2}_{MC} [GeV^2]",100,0.,2.,450,1.,10.);
-  TH2D* h_2D_tVQ2_MCA = new TH2D("2d_tvq2_mca",";t_{MC|Reco} [GeV^{2}];Q^{2}_{MC|Reco} [GeV^2]",100,0.,2.,450,1.,10.);
-  TH2D* h_2D_tVQ2_RP = new TH2D("2d_tvq2_rp",";t_{Reco} [GeV^{2}];Q^{2}_{Reco} [GeV^2]",100,0.,2.,450,1.,10.);
+  TH2D* h_2D_tVQ2_MC = new TH2D("2d_tvq2_mc",";t_{MC} [GeV^{2}];Q^{2}_{MC} [GeV^2]",100,0.,2.,5000,1.,100.);
+  TH2D* h_2D_tVQ2_MCA = new TH2D("2d_tvq2_mca",";t_{MC|Reco} [GeV^{2}];Q^{2}_{MC|Reco} [GeV^2]",100,0.,2.,5000,1.,100.);
+  TH2D* h_2D_tVQ2_RP = new TH2D("2d_tvq2_rp",";t_{Reco} [GeV^{2}];Q^{2}_{Reco} [GeV^2]",100,0.,2.,5000,1.,100.);
 
-  TH2D* h_2D_xVQ2_MC = new TH2D("2d_xvq2_mc",";x_{B,MC};Q^{2}_{MC} [GeV^{2}]",1e4,0.,1.,200,0.,100.);
-  TH2D* h_2D_xVQ2_MCA = new TH2D("2d_xvq2_mca",";x_{B,MC|Reco};Q^{2}_{MC|Reco} [GeV^{2}]",1e4,0.,1.,200,0.,100.);
-  TH2D* h_2D_xVQ2_RP = new TH2D("2d_xvq2_rp",";x_{B,Reco};Q^{2}_{Reco} [GeV^{2}]",1e4,0.,1.,200,0.,10.);
+  TH2D* h_2D_xVQ2_MC = new TH2D("2d_xvq2_mc",";x_{B,MC};Q^{2}_{MC} [GeV^{2}]",1e4,0.,1.,5000,0.,100.);
+  TH2D* h_2D_xVQ2_MCA = new TH2D("2d_xvq2_mca",";x_{B,MC|Reco};Q^{2}_{MC|Reco} [GeV^{2}]",1e4,0.,1.,5000,0.,100.);
+  TH2D* h_2D_xVQ2_RP = new TH2D("2d_xvq2_rp",";x_{B,Reco};Q^{2}_{Reco} [GeV^{2}]",1e4,0.,1.,5000,0.,100.);
+  TH2D* h_2D_xVQ2_EX = new TH2D("2d_xvq2_ex",";x_{B,Reco};Q^{2}_{Reco} [GeV^{2}]",1e4,0.,1.,5000,0.,100.);
 
   // 2D coverage distributions
   TH2D* h_2D_EvEta_g = new TH2D("2d_eveta_g",";#eta_{#gamma};E_{#gamma} [GeV]",200,-4.,4.,100,0.,50.);
@@ -843,10 +827,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
     //---------------------------------------------------------
     // Get file
     TString tmp{fileName};
-    if ( fileCounter % ( NumFiles / 10 ) == 0 ) {
-      cout << "Processed " << setw(4) << ceil(((1.0*fileCounter)/(1.0*NumFiles))*100.0) << " % of Files - " << fileCounter << endl;
-    }
-    //std::cout<<"Input file "<<fileCounter<<" : "<<tmp<<std::endl;
+    std::cout<<"Input file "<<fileCounter<<" : "<<tmp<<std::endl;
     auto inputRootFile = TFile::Open(tmp);
     if(!inputRootFile){ std::cout<<"MISSING_ROOT_FILE"<<tmp<<endl; continue;}
     fileCounter++;
@@ -855,7 +836,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
     TTree * evtTree = (TTree*)inputRootFile->Get("events");
     if (!(inputRootFile->GetListOfKeys()->Contains("events"))) continue;
     int numEvents = evtTree->GetEntries();
-    //std::cout<<"File has "<<numEvents<<" events..."<<std::endl;
+    std::cout<<"File has "<<numEvents<<" events..."<<std::endl;
 
     //---------------------------------------------------------
     // Declare TTreeReader, and choose appropriate branches
@@ -966,7 +947,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	std::cout<<"File 1 - beams\n\te:"<<beame4<<"\n\tp:"<<beamp4<<std::endl;
       } // fi (fileCounter == 1)
-      //else std::cout<<"Using beams from first file."<<std::endl;
+      else std::cout<<"Using beams from first file."<<std::endl;
       
     } // fi (kUseEventBeams)
 
@@ -1169,7 +1150,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  // Using track charge
 	  if(!kUsePID){
 	    // Positive => PROTON
-	    if(re_charge_array[ireco] == 1){
+	    if(tsre_charge_array[ireco] == 1){
 	      P3EVector q_reco(recotrk.X(),recotrk.Y(),recotrk.Z(),calcE(recotrk,fMass_proton));
 	      undoAfterburn(q_reco);
 	      scatp4_rec.push_back(q_reco);
@@ -1284,9 +1265,9 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    MomVector vCoMgp = (scatg4_gen[0]+scatp4_gen[0]).BoostToCM();
 	    MomVector vTargetRest = beamp4.BoostToCM();
 	    // Trento Phi - Target rest frame
-	    //h_TPhi_MC->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_gen[0], vTargetRest), boost(scatp4_gen[0], vTargetRest)));
+	    h_TPhi_MC->Fill(calcTrentoPhi_qp(boost(beame4, vTargetRest), boost(scate4_gen[0], vTargetRest), boost(scatp4_gen[0], vTargetRest)));
 	    // Trento Phi - Centre-of-mass frame
-	    h_TPhi_MC->Fill(calcTrentoPhi_qp(boost(beame4, vCoMgp), boost(scate4_gen[0], vCoMgp), boost(scatp4_gen[0], vCoMgp)));
+	    //h_TPhi_MC->Fill(calcTrentoPhi_qp(boost(beame4, vCoMgp), boost(scate4_gen[0], vCoMgp), boost(scatp4_gen[0], vCoMgp)));
 	    h_Cone_MC->Fill(calcConeAngle(beame4, beamp4, scate4_gen[0], scatp4_gen[0], scatg4_gen[0]));
 	  }
 	}
@@ -1675,10 +1656,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
       if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0")){
 	h_2D_xVt_RP->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_rec[0])), calcT_BABE(beamp4, scatp4_rec[0]));
 	h_2D_tVQ2_RP->Fill(calcT_BABE(beamp4, scatp4_rec[0]), calcQ2_Elec(beame4, scate4_rec[0]));
+	h_2D_xVQ2_EX->Fill(calcX_Elec(beame4, beamp4, scate4_rec[0]), calcQ2_Elec(beame4, scate4_rec[0]));
       }
       if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rom, scatg4_rec, "RP")){
 	h_2D_xVt_RP->Fill(TMath::Log10(calcX_Elec(beame4, beamp4, scate4_rec[0])), calcT_BABE(beamp4, scatp4_rom[0]));
 	h_2D_tVQ2_RP->Fill(calcT_BABE(beamp4, scatp4_rom[0]), calcQ2_Elec(beame4, scate4_rec[0]));
+	h_2D_xVQ2_EX->Fill(calcX_Elec(beame4, beamp4, scate4_rec[0]), calcQ2_Elec(beame4, scate4_rec[0]));
       }
 
       if(kDEBUG) std::cout<<"[DEBUG] 2D xB/Q2:t histos. filled"<<std::endl;
@@ -1972,6 +1955,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
   h_2D_xVQ2_MC->Write();
   h_2D_xVQ2_MCA->Write();
   h_2D_xVQ2_RP->Write();
+  h_2D_xVQ2_EX->Write();
   h_2D_tVQ2_MC->Write();
   h_2D_tVQ2_MCA->Write();
   h_2D_tVQ2_RP->Write();

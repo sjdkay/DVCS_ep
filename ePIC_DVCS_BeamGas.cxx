@@ -875,13 +875,13 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_eta_MCe->Fill(scate4_gen[ele_ind].Eta());
 	h_2D_EvEta_e->Fill(scate4_gen[ele_ind].Eta(), scate4_gen[ele_ind].E());	
 	h_E_MCe->Fill(scate4_gen[ele_ind].E());
-	h_Theta_MCe->Fill(scate4_gen[ele_ind].Theta());
+	h_Theta_MCe->Fill(scate4_gen[ele_ind].Theta()*TMath::RadToDeg());
       }
       for(int pho_ind{0}; pho_ind<scatg4_gen.size(); pho_ind++){
 	h_eta_MCg->Fill(scatg4_gen[pho_ind].Eta());
 	h_2D_EvEta_g->Fill(scatg4_gen[pho_ind].Eta(), scatg4_gen[pho_ind].E());
 	h_E_MCg->Fill(scatg4_gen[pho_ind].E());
-	h_Theta_MCg->Fill(scatg4_gen[pho_ind].Theta());
+	h_Theta_MCg->Fill(scatg4_gen[pho_ind].Theta()*TMath::RadToDeg());
       }
       for(int pro_ind{0}; pro_ind<scatp4_gen.size(); pro_ind++){
 	h_eta_MCp->Fill(scatp4_gen[pro_ind].Eta());
@@ -891,13 +891,13 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_eta_BGe->Fill(bgase4_gen[ele_bkg].Eta());
 	h_2D_EvEta_e->Fill(bgase4_gen[ele_bkg].Eta(), bgase4_gen[ele_bkg].E());
 	h_E_BGe->Fill(bgase4_gen[ele_bkg].E());
-	h_Theta_BGe->Fill(bgase4_gen[ele_bkg].Theta());
+	h_Theta_BGe->Fill(bgase4_gen[ele_bkg].Theta()*TMath::RadToDeg());
       }
       for(int pho_bkg{0}; pho_bkg<bgasg4_gen.size(); pho_bkg++){
 	h_eta_BGg->Fill(bgasg4_gen[pho_bkg].Eta());
 	h_2D_EvEta_g->Fill(bgasg4_gen[pho_bkg].Eta(), bgasg4_gen[pho_bkg].E());
 	h_E_BGg->Fill(bgasg4_gen[pho_bkg].E());
-	h_Theta_BGg->Fill(bgasg4_gen[pho_bkg].Theta());
+	h_Theta_BGg->Fill(bgasg4_gen[pho_bkg].Theta()*TMath::RadToDeg());
       }
       // Single species - MC accepted
       for(int ele_ind{0}; ele_ind<scate4_aso.size(); ele_ind++)	h_eta_MCAe->Fill(scate4_aso[ele_ind].Eta());
@@ -907,12 +907,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
       for(int ele_ind{0}; ele_ind<scate4_rec.size(); ele_ind++){
 	h_eta_RPe->Fill(scate4_rec[ele_ind].Eta());
 	h_E_RPe->Fill(scate4_rec[ele_ind].E());
-	h_Theta_RPe->Fill(scate4_rec[ele_ind].Theta());
+	h_Theta_RPe->Fill(scate4_rec[ele_ind].Theta()*TMath::RadToDeg());
       }
       for(int pho_ind{0}; pho_ind<scatg4_rec.size(); pho_ind++){
 	h_eta_RPg->Fill(scatg4_rec[pho_ind].Eta());
 	h_E_RPg->Fill(scatg4_rec[pho_ind].E());
-	h_Theta_RPg->Fill(scatg4_rec[pho_ind].Theta());
+	h_Theta_RPg->Fill(scatg4_rec[pho_ind].Theta()*TMath::RadToDeg());
       }
       for(int pro_ind{0}; pro_ind<scatp4_rec.size(); pro_ind++)	h_eta_RPp->Fill(scatp4_rec[pro_ind].Eta());
       for(int pro_ind{0}; pro_ind<scatp4_rom.size(); pro_ind++)	h_eta_RPPp->Fill(scatp4_rom[pro_ind].Eta());
