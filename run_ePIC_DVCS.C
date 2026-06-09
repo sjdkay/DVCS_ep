@@ -1,10 +1,10 @@
 // Running macro for ePIC DVCS analysis
 //#include "ePIC_DVCS_TASK.cxx"
 //#include "ePIC_DVCS_Res.cxx"
-//#include "ePIC_DVCS_PODIO.cxx"
+#include "ePIC_DVCS_PODIO.cxx"
 
 //#include "ePIC_DISBkg_PODIO.cxx"
-#include "ePIC_DVCS_BeamGas.cxx"
+//#include "ePIC_DVCS_BeamGas.cxx"
 //#include "ePIC_DVCS_Test.cxx"
 
 const float fMass_proton{0.938272};

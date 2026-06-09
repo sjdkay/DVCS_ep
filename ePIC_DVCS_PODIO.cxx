@@ -58,7 +58,14 @@ ePIC_DVCS_TASK::ePIC_DVCS_TASK(TString camp, TString energy, TString sett){
 // Set input file list
 void ePIC_DVCS_TASK::setInFileList(TString name){
   sInList = name;
-  std::cout<<"Input file list used: "<<name<<std::endl;
+  if(gSystem->AccessPathName(sInList) == kTRUE){ // Check if provided file list is openable, if it isn't, exit
+    cout << "File list - " << sInList << " not found." << endl;
+    cout << "Check pathing and re-run" << endl;
+    std::exit(EXIT_FAILURE);
+  }
+  else if(gSystem->AccessPathName(sInList) == kFALSE){
+    std::cout<<"Input file list used: "<<sInList<<std::endl;
+  }
 }
 
 // Set output file name and create new
@@ -438,6 +445,16 @@ void ePIC_DVCS_TASK::doAnalysis(){
   fileListStream.open(sInList);
   string fileName;
   TFile* inputRootFile;
+
+    int NumFiles = 0;  
+  // Determine number of files in file list
+  while(getline(fileListStream,fileName)){
+    NumFiles++;
+  }
+  cout << "Proccessing - " << NumFiles << " total files in input file list" << endl;
+  // Reset file
+  fileListStream.clear();
+  fileListStream.seekg(0, fileListStream.beg);
   
   //---------------------------------------------------------
   // Setup: Declare histograms
@@ -635,14 +652,17 @@ void ePIC_DVCS_TASK::doAnalysis(){
   
   // Start file loop
   while(getline(fileListStream,fileName)){
-    std::cout<<"Input file "<<fileCounter<<" : "<<fileName<<std::endl;
+    //std::cout<<"Input file "<<fileCounter<<" : "<<fileName<<std::endl;
     
     // Open podio reader
-    // New reader for each file
+    if ( fileCounter % ( NumFiles / 10 ) == 0 ) {
+      cout << "Processed " << setw(4) << ceil(((1.0*fileCounter)/(1.0*NumFiles))*100.0) << " % of Files - " << fileCounter << endl;
+    }
+// New reader for each file
     auto reader = podio::ROOTReader();
     reader.openFile(fileName);
     Int_t nEntries = reader.getEntries("events");
-    std::cout<<"File has "<<nEntries<<" events..."<<std::endl;
+    //std::cout<<"File has "<<nEntries<<" events..."<<std::endl;
     
     // Case of taking average beams from file
     if(!kUseEventBeams){
@@ -687,7 +707,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	std::cout<<"First file - beams\n\te:"<<beame4<<"\n\tp:"<<beamp4<<std::endl;
       } // fi (fileCounter == 0)
-      else std::cout<<"Using beams from first file."<<std::endl;
+      //else std::cout<<"Using beams from first file."<<std::endl;
     } // fi (!kUseEventBeams)
 
     // (Re)Run reader for main events
