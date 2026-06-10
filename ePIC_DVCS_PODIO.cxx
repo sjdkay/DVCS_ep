@@ -1474,7 +1474,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
   // Write to output file
   //------------------------------------------------------------
   fOutFile->cd();
-  
+  gDirectory->mkdir("Oliver_Plots");
+  gDirectory->cd("Oliver_Plots");
   // Eta - MC
   h_eta_MCp->Write();
   h_eta_MCe->Write();
@@ -1569,6 +1570,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
     }// End of xB bin loop
   } // End of Q2 bin loop
 
+  gDirectory->cd("../");
   gDirectory->mkdir("Q2xB_Binned_Dists");
   gDirectory->cd("Q2xB_Binned_Dists");
   for(int q{0}; q<nQ2bins; q++){
