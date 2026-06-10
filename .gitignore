@@ -1,2 +1,4 @@
 filelists/*
 Output/*
+*.root
+*.hepmc3
