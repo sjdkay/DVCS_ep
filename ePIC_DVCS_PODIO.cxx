@@ -573,9 +573,13 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH1D* h_TPhiDiff_RPAcc[nQ2bins][nxBbins][ntbins];
   TH1D* h_TPhiDiff_B0Reco[nQ2bins][nxBbins][ntbins];
   TH1D* h_TPhiDiff_RPReco[nQ2bins][nxBbins][ntbins];
+  TH1D* h1_tMC_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC, true Q2/xB values
+  TH1D* h1_tMCAcc_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC for accepted events, true Q2/xB values
   TH1D* h1_tB0_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, true Q2/xB values
   TH1D* h1_tRP_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from RP, true Q2/xB values
   TH1D* h1_tMethL_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from "corrected" method, true Q2/xB values
+  TH1D* h1_tMC_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC, true Q2/xB values - Not sure if there are any circumstances where this can/should actually be filled
+  TH1D* h1_tMCAcc_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC for accepted events, true Q2/xB values
   TH1D* h1_tB0_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, rec Q2/xB values
   TH1D* h1_tRP_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from RP, rec Q2/xB values
   TH1D* h1_tMethL_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from "corrected" method, rec Q2/xB values
@@ -584,8 +588,13 @@ void ePIC_DVCS_TASK::doAnalysis(){
   
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
-      h1_tB0_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_True[%i][%i]",binq2,binxB),
-					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
+      h1_tMC_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMC_Q2xB_True[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tMCAcc_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
 					   20, 0., 2.);
@@ -596,6 +605,16 @@ void ePIC_DVCS_TASK::doAnalysis(){
 					   20, 0., 2.);
       h1_tMethL_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{eXBE}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tMC_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMC_Q2xB_Rec[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tMCAcc_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_Rec[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
 					   20, 0., 2.);
@@ -1020,6 +1039,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_2D_EvEta_p->Fill(scatp4_gen[0].Eta(), scatp4_gen[0].E());
       }
 
+      
+      
       // For cut histogram - don't apply proton theta cut
       if(scatp4_gen.size() == 1){
 	h_theta_MCp->Fill(scatp4_gen[0].Theta()*1000);
@@ -1131,6 +1152,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    break;
 	  }
 	}
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMC_Q2xB_True[binq2][binxB]->Fill(t_gen);
+	}
+
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)) h_TPhiDiff_MC[binq2][binxB][bint]->Fill(tphi_gen);
       }
       
@@ -1187,6 +1212,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_True[binq2][binxB]->Fill(t_acc);
 	  h1_tB0_Q2xB_True[binq2][binxB]->Fill(t_rec);
 	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_recL);
 	}
@@ -1220,6 +1246,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB reconstructed
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_Rec[binq2][binxB]->Fill(t_acc);
 	  h1_tB0_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
 	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_recL);
 	}
@@ -1284,6 +1311,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_True[binq2][binxB]->Fill(t_acc);
 	  h1_tRP_Q2xB_True[binq2][binxB]->Fill(t_rec);
 	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_recL);
 	}
@@ -1316,6 +1344,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB reconstructed
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_Rec[binq2][binxB]->Fill(t_acc);
 	  h1_tRP_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
 	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_recL);	  
 	}	
@@ -1369,6 +1398,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_True[binq2][binxB]->Fill(t_acc);
 	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_rec);
 	}
 
@@ -1389,6 +1419,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	}
 	// Fill Q2/x bin accordingly if Q2/xB reconstructed
 	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMCAcc_Q2xB_Rec[binq2][binxB]->Fill(t_acc);
 	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
 	}
       }
@@ -1542,9 +1573,13 @@ void ePIC_DVCS_TASK::doAnalysis(){
   gDirectory->cd("Q2xB_Binned_Dists");
   for(int q{0}; q<nQ2bins; q++){
     for(int x{0}; x<nxBbins; x++){
+      h1_tMC_Q2xB_True[q][x]->Write();
+      h1_tMCAcc_Q2xB_True[q][x]->Write();
       h1_tB0_Q2xB_True[q][x]->Write();
       h1_tRP_Q2xB_True[q][x]->Write();
       h1_tMethL_Q2xB_True[q][x]->Write();
+      h1_tMC_Q2xB_Rec[q][x]->Write();
+      h1_tMCAcc_Q2xB_Rec[q][x]->Write();
       h1_tB0_Q2xB_Rec[q][x]->Write();
       h1_tRP_Q2xB_Rec[q][x]->Write();
       h1_tMethL_Q2xB_Rec[q][x]->Write();
