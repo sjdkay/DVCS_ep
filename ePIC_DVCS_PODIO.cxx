@@ -573,12 +573,47 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH1D* h_TPhiDiff_RPAcc[nQ2bins][nxBbins][ntbins];
   TH1D* h_TPhiDiff_B0Reco[nQ2bins][nxBbins][ntbins];
   TH1D* h_TPhiDiff_RPReco[nQ2bins][nxBbins][ntbins];
-
+  TH1D* h1_tB0_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, true Q2/xB values
+  TH1D* h1_tRP_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from RP, true Q2/xB values
+  TH1D* h1_tMethL_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from "corrected" method, true Q2/xB values
+  TH1D* h1_tB0_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, rec Q2/xB values
+  TH1D* h1_tRP_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from RP, rec Q2/xB values
+  TH1D* h1_tMethL_Q2xB_Rec[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from "corrected" method, rec Q2/xB values
   /*TH1D* h_TPhiResDiff_B0[nQ2bins][nxBbins][ntbins];
     TH1D* h_TPhiResDiff_RP[nQ2bins][nxBbins][ntbins];*/
   
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
+      h1_tB0_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_True[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tRP_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tRP_Q2xB_True[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{RP}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tMethL_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{eXBE}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tB0_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_Rec[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tRP_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tRP_Q2xB_Rec[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{RP}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
+      h1_tMethL_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMethL_Q2xB_Rec[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{eXBE}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   20, 0., 2.);
       for(int bint{0}; bint<ntbins; bint++){
 	h_Q2Diff[binq2][binxB][bint] = new TH1D(Form("q2diff[%i][%i][%i]",binq2,binxB,bint),
 						Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;Q^{2}(MCA) [GeV^{2}];",
@@ -1109,10 +1144,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
       //cout<<"[DEBUG] Reco. E-Pz (full evt., B0 proton) filled"<<endl;
 
+      // B0 events
       if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size() == 0){	
 	// Calculations
 	Float_t t_acc = calcT_BABE(beamp4,scatp4_aso[0]);
 	Float_t t_rec = calcT_BABE(beamp4,scatp4_rec[0]);
+	Float_t t_recL = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);
 	Float_t tphi_acc = calcTrentoPhi_qg(beame4, beamp4, scate4_aso[0], scatg4_aso[0]);
 	Float_t tphi_rec = calcTrentoPhi_qg(beame4, beamp4, scate4_rec[0], scatg4_rec[0]);
 	// Distributions - Q2/xB integrated
@@ -1148,6 +1185,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    break;
 	  }
 	}
+	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tB0_Q2xB_True[binq2][binxB]->Fill(t_rec);
+	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_recL);
+	}
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)) h_TPhiDiff_B0Acc[binq2][binxB][bint]->Fill(tphi_acc);
 	
 	// Q2/xB diff. - reconstructed
@@ -1176,6 +1218,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    break;
 	  }
 	}
+	// Fill Q2/x bin accordingly if Q2/xB reconstructed
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tB0_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
+	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_recL);
+	}
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)){
 	  h_TPhiDiff_B0Reco[binq2][binxB][bint]->Fill(tphi_rec);
 	  // Fill MCA histograms based on reco. kinematics
@@ -1199,6 +1246,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	// Calculations
 	Float_t t_acc = calcT_BABE(beamp4,scatp4_gen[0]);
 	Float_t t_rec = calcT_BABE(beamp4,scatp4_rom[0]);
+	Float_t t_recL = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);
 	Float_t tphi_acc = calcTrentoPhi_qg(beame4, beamp4, scate4_aso[0], scatg4_aso[0]);
 	Float_t tphi_rec = calcTrentoPhi_qg(beame4, beamp4, scate4_rec[0], scatg4_rec[0]);
 	// Distributions - Q2/xB integrated
@@ -1234,6 +1282,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    break;
 	  }
 	}
+	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tRP_Q2xB_True[binq2][binxB]->Fill(t_rec);
+	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_recL);
+	}
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)) h_TPhiDiff_RPAcc[binq2][binxB][bint]->Fill(tphi_acc);
 
 	// Q2/xB diff. - reconstructed
@@ -1261,7 +1314,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    break;
 	  }
 	}
-	
+	// Fill Q2/x bin accordingly if Q2/xB reconstructed
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tRP_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
+	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_recL);	  
+	}	
 	//if(binxB==0) cout<<"Bin ["<<binq2<<"]["<<binxB<<"]["<<bint<<"]; x = "<<xB_rec<<endl;
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)){
 	  h_TPhiDiff_RPReco[binq2][binxB][bint]->Fill(tphi_rec);
@@ -1295,6 +1352,45 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	// Q2/xB diff. - reconstructed
 	Float_t q2_rec = calcQ2_Elec(beame4, scate4_rec[0]);
 	Float_t xB_rec = calcX_Elec(beame4, beamp4, scate4_rec[0]);
+
+	// Find global bin numbers
+	int binq2{-1}, binxB{-1}, bint{-1};
+	for(int q{0}; q<nQ2bins; q++){
+	  if(q2_acc >= q2edges[q] && q2_acc < q2edges[q+1]){
+	    binq2 = q;
+	    break;
+	  }
+	}
+	for(int x{0}; x<nxBbins; x++){
+	  if(xB_acc >= xBedges[x] && xB_acc < xBedges[x+1]){
+	    binxB = x;
+	    break;
+	  }
+	}
+	// Fill Q2/x bin accordingly if Q2/xB true MC values (associated)
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMethL_Q2xB_True[binq2][binxB]->Fill(t_rec);
+	}
+
+	binq2 = -1;
+	binxB = -1;
+	bint = -1;
+	for(int q{0}; q<nQ2bins; q++){
+	  if(q2_rec >= q2edges[q] && q2_rec < q2edges[q+1]){
+	    binq2 = q;
+	    break;
+	  }
+	}
+	for(int x{0}; x<nxBbins; x++){
+	  if(xB_rec >= xBedges[x] && xB_rec < xBedges[x+1]){
+	    binxB = x;
+	    break;
+	  }
+	}
+	// Fill Q2/x bin accordingly if Q2/xB reconstructed
+	if((binq2!=-1) && (binxB!=-1)){
+	  h1_tMethL_Q2xB_Rec[binq2][binxB]->Fill(t_rec);
+	}
       }
       
       // Mandelstam t-resolution
@@ -1442,5 +1538,18 @@ void ePIC_DVCS_TASK::doAnalysis(){
     }// End of xB bin loop
   } // End of Q2 bin loop
 
+  gDirectory->mkdir("Q2xB_Binned_Dists");
+  gDirectory->cd("Q2xB_Binned_Dists");
+  for(int q{0}; q<nQ2bins; q++){
+    for(int x{0}; x<nxBbins; x++){
+      h1_tB0_Q2xB_True[q][x]->Write();
+      h1_tRP_Q2xB_True[q][x]->Write();
+      h1_tMethL_Q2xB_True[q][x]->Write();
+      h1_tB0_Q2xB_Rec[q][x]->Write();
+      h1_tRP_Q2xB_Rec[q][x]->Write();
+      h1_tMethL_Q2xB_Rec[q][x]->Write();
+    }
+  }
+  
   return;
 }
