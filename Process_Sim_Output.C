@@ -32,7 +32,7 @@ void Process_Sim_Output(TString InFile = ""){
   const int nxBbins = sizeof(xBedges)/sizeof(xBedges[0]) - 1;
   const int ntbins  = sizeof(tedges)/sizeof(tedges[0]) - 1;
   TH1D* tmpHist1D;
-  
+  //kP6Violet  
   TCanvas* c_Q2xB_Results[9];
   TLatex *Q2_Range_Text[9];
   TLegend* Leg_tComp = new TLegend (0.1, 0.2, 0.9, 0.6);
@@ -42,13 +42,27 @@ void Process_Sim_Output(TString InFile = ""){
     c_Q2xB_Results[binq2]->Divide(4,3); 
     for(int binxB{0}; binxB<nxBbins; binxB++){
       c_Q2xB_Results[binq2]->cd(binxB+1);
+      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMC_Q2xB_True[%i][%i]",binq2,binxB))));
+      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      tmpHist1D->SetLineColor(kP6Gray);
+      if(binq2 == 0 && binxB == 0){ //First bin only
+	Leg_tComp->AddEntry(tmpHist1D, "t_{MC}");
+      }
+      tmpHist1D->Draw("HISTERR");
+      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB))));
+      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      tmpHist1D->SetLineColor(kP6Violet);
+      if(binq2 == 0 && binxB == 0){ //First bin only
+	Leg_tComp->AddEntry(tmpHist1D, "t_{MC_Accepted}");
+      }
+      tmpHist1D->Draw("SAMEHISTERR");
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
       tmpHist1D->SetLineColor(kP6Red);
       if(binq2 == 0 && binxB == 0){ //First bin only
 	Leg_tComp->AddEntry(tmpHist1D, "t_{MethodL}");
       }
-      tmpHist1D->Draw("HISTERR");
+      tmpHist1D->Draw("SAMEHISTERR");
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_True[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
       tmpHist1D->SetLineColor(kP6Blue);
@@ -87,10 +101,18 @@ void Process_Sim_Output(TString InFile = ""){
     c_Q2xB_Results2[binq2]->Divide(4,3); 
     for(int binxB{0}; binxB<nxBbins; binxB++){
       c_Q2xB_Results2[binq2]->cd(binxB+1);
+      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMC_Q2xB_True[%i][%i]",binq2,binxB))));
+      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      tmpHist1D->SetLineColor(kP6Gray);
+      tmpHist1D->Draw("HISTERR");
+      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMCAcc_Q2xB_Rec[%i][%i]",binq2,binxB))));
+      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      tmpHist1D->SetLineColor(kP6Violet);
+      tmpHist1D->Draw("SAMEHISTERR");
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_Rec[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
       tmpHist1D->SetLineColor(kP6Red);
-      tmpHist1D->Draw("HISTERR");
+      tmpHist1D->Draw("SAMEHISTERR");
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_Rec[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
       tmpHist1D->SetLineColor(kP6Blue);
