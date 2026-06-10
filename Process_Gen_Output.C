@@ -132,7 +132,8 @@ void Process_Gen_Output(TString InFile = ""){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       c_Q2xB_Results[binq2]->cd(binxB+1);
       h1_tDiff_v2[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      h1_tDiff_v2[binq2][binxB]->Draw("");
+      h1_tDiff_v2[binq2][binxB]->Draw("HISTERR");
+      gPad->SetLogy(1);
     }
     c_Q2xB_Results[binq2]->cd(12);
     Q2_Range_Text[binq2] = new TLatex(0.2, 0.5, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
