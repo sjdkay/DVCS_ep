@@ -500,10 +500,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
   // 4) t resolution - as absolute or as percentage (plot as preferred)
   TH2D* h_tResB0_2d = new TH2D("tresb0_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
   TH2D* h_tResRP_2d = new TH2D("tresrp_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h_tResB0Pct_2d = new TH2D("tresb0pct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 200, -1., 1.);
-  TH2D* h_tResRPPct_2d = new TH2D("tresrppct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 200, -1., 1.);
+  TH2D* h_tResB0Pct_2d = new TH2D("tresb0pct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.);
+  TH2D* h_tResRPPct_2d = new TH2D("tresrppct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.);
   TH2D* h_tResLC_2d    = new TH2D("treslc_2d",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h_tResLCPct_2d = new TH2D("treslcpct_2d",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 200, -1., 1.);
+  TH2D* h_tResLCPct_2d = new TH2D("treslcpct_2d",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.);
 
   // 5) Inclusive event kinematics - distributions, 2D response and resolution
   // 5a) 1D distributions
@@ -594,53 +594,53 @@ void ePIC_DVCS_TASK::doAnalysis(){
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tMCAcc_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tB0_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tRP_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tRP_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{RP}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tMethL_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{eXBE}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       
       h1_tMC_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMC_Q2xB_Rec[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tMCAcc_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_Rec[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tB0_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_Rec[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tRP_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tRP_Q2xB_Rec[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{RP}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       h1_tMethL_Q2xB_Rec[binq2][binxB] = new TH1D(Form("h1_tMethL_Q2xB_Rec[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{eXBE}| [GeV^{2}];",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
-					   20, 0., 2.);
+					   16, 0., 1.6);
       for(int bint{0}; bint<ntbins; bint++){
 	h_Q2Diff[binq2][binxB][bint] = new TH1D(Form("q2diff[%i][%i][%i]",binq2,binxB,bint),
 						Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|<%.2f;Q^{2}(MCA) [GeV^{2}];",
@@ -1439,15 +1439,15 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size()==0){
 	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rec[0]);
-	h_tResB0_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen));
-	h_tResB0Pct_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen)/t_gen);
+	h_tResB0_2d->Fill(t_gen, (t_rec-t_gen));
+	h_tResB0Pct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all") 
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rom, scatg4_rec, "RP") && scatp4_rec.size()==0){
 	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rom[0]);
-	h_tResRP_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen));
-	h_tResRPPct_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen)/t_gen);
+	h_tResRP_2d->Fill(t_gen, (t_rec-t_gen));
+	h_tResRPPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "semi")
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "semi")){
@@ -1455,8 +1455,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 //&& applyCuts_Electron(beame4,scate4_gen) && applyCuts_Photon(scatg4_gen)){
 	t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
 	t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);
-	h_tResLC_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen));
-	h_tResLCPct_2d->Fill(t_gen, TMath::Abs(t_rec-t_gen)/t_gen);
+	h_tResLC_2d->Fill(t_gen, (t_rec-t_gen));
+	h_tResLCPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
 
       // Missing mass histos - only apply multiplicity and track quality cuts
@@ -1595,6 +1595,16 @@ void ePIC_DVCS_TASK::doAnalysis(){
       h1_tMethL_Q2xB_Rec[q][x]->Write();
     }
   }
+
+  gDirectory->cd("../");
+  gDirectory->mkdir("t_Resolution_Plots");
+  gDirectory->cd("t_Resolution_Plots");
+  h_tResB0_2d->Write();
+  h_tResRP_2d->Write();
+  h_tResB0Pct_2d->Write();
+  h_tResRPPct_2d->Write();
+  h_tResLC_2d->Write();
+  h_tResLCPct_2d->Write();
   
   return;
 }
