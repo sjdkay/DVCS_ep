@@ -139,3 +139,25 @@ void Process_Sim_Output(TString InFile = ""){
   }
   
 }
+
+// Use this to extract t resolutions from Deltat(t) plots
+// TGraphErrors* tRes_Graphs[4];
+// TCanvas* c_tResResults[4];
+// TCanvas* c_tResResults_2D[4];
+// tmpHist2D=((TH2D*)gDirectory->FindObject("h2_tRes_Result_0")); // Overall -t dist, all Q2 bins
+// tRes_Graphs[0] = extractResolution(tmpHist2D);
+// c_tResResults[0] = new TCanvas("c_tResResults_0", "-t Resolution, all Q2 bins", 100, 0, 2560, 1920);
+// tRes_Graphs[0]->SetMarkerColor(kP6Red);
+// tRes_Graphs[0]->SetMarkerStyle(21);
+// tRes_Graphs[0]->GetXaxis()->SetRangeUser(0, 0.5);
+// tRes_Graphs[0]->GetYaxis()->SetRangeUser(0, 0.1);
+// tRes_Graphs[0]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
+// tRes_Graphs[0]->GetYaxis()->SetTitle("RMS(#Delta t)");
+// tRes_Graphs[0]->Draw("AP");
+// c_tResResults[0]->Print(Form("%s/PaperPlots/%s_tRes_AllQ2.png", OutDir.Data(), InBeamE.Data()));
+// c_tResResults_2D[0] = new TCanvas("c_tResResults_2D_0", "-t Resolution, all Q2 bins, 2D", 100, 0, 2560, 1920);
+// tmpHist2D->SetTitle("");
+// tmpHist2D->GetXaxis()->SetRangeUser(0, 0.5);
+// tmpHist2D->Draw("COLZ");
+// c_tResResults_2D[0]->SetLogz();
+// c_tResResults_2D[0]->Print(Form("%s/PaperPlots/%s_tRes_2D_AllQ2.png", OutDir.Data(), InBeamE.Data()));

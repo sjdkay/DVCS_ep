@@ -28,3 +28,31 @@ Bool_t CheckFile(TString File){
   }
   return FileCheck;
 }
+
+// Function to get a TGraphErrors of the resolution given an input 2D histogram of DeltaQuant as a fn of Quant
+TGraphErrors* extractResolution(TH2D* twoDHisto){
+  int num_bins  = twoDHisto->GetNbinsX();
+  double xBinWidth = twoDHisto->GetXaxis()->GetBinWidth(1);
+  double xMin = twoDHisto->GetXaxis()->GetBinCenter(1) - xBinWidth*0.5;
+  double xMax = twoDHisto->GetXaxis()->GetBinCenter(num_bins) + xBinWidth*0.5;
+  std::vector<double> x_vals;
+  std::vector<double> xerr_vals;
+  std::vector<double> y_vals;
+  std::vector<double> yerr_vals;
+  TH1D* tmp;
+  double rmsReso = 0.0;
+  double rmsErr = 0.0;
+  for(int bin = 1; bin < num_bins+1; bin++){
+    rmsReso = 0.0;
+    tmp = (TH1D*)twoDHisto->ProjectionY("tmp_proj", bin, bin+1);
+    rmsReso = tmp->GetRMS();
+    rmsErr  = tmp->GetRMSError();
+    x_vals.push_back(twoDHisto->GetXaxis()->GetBinCenter(bin));
+    xerr_vals.push_back(xBinWidth*0.5);
+    y_vals.push_back(rmsReso);
+    yerr_vals.push_back(rmsErr);
+    //delete func;
+  }
+  TGraphErrors* finalResoGraph = new TGraphErrors(num_bins, x_vals.data(), y_vals.data(), xerr_vals.data(), yerr_vals.data());
+  return finalResoGraph;
+}
