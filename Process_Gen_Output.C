@@ -15,6 +15,9 @@ void Process_Gen_Output(TString InFile = ""){
   if(CheckFile(InFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
     exit(1);
   }
+
+  gStyle->SetPadLeftMargin(0.15);
+  gStyle->SetPadRightMargin(0.15);
   
   TChain *AnalysisChain = new TChain("hepmc3_tree");
   AnalysisChain->Add(InFile);

@@ -16,6 +16,8 @@ void Process_Sim_Output(TString InFile = ""){
     exit(1);
   }
   gStyle->SetOptStat(0);
+  gStyle->SetPadLeftMargin(0.15);
+  gStyle->SetPadRightMargin(0.15);
   
   TFile *File =  new TFile(InFile);
   
@@ -95,7 +97,7 @@ void Process_Sim_Output(TString InFile = ""){
   }
 
   TCanvas* c_Q2xB_Results2[9];
-  TString OutPdf2 = Form("%s_RecQ2xB_Binned_tDists_Rec.pdf", (InFile.Remove(InFile.Length() - 5)).Data());
+  TString OutPdf2 = Form("%s_RecQ2xB_Binned_tDists_Rec.pdf", InFile.Data());
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     c_Q2xB_Results2[binq2] = new TCanvas(Form("c_Q2xB_Results2_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
     c_Q2xB_Results2[binq2]->Divide(4,3); 
@@ -139,11 +141,11 @@ void Process_Sim_Output(TString InFile = ""){
   }
 
   TCanvas* c_tRes_Results =  new TCanvas("c_tResResults", "t Resolutions", 100, 0, 2560, 1920);
-  TString OutPdf3 = Form("%s_tRes_Results.pdf", (InFile.Remove(InFile.Length() - 5)).Data());
+  TString OutPdf3 = Form("%s_tRes_Results.pdf", InFile.Data());
   TGraphErrors *tResGraphs[3];
   c_tRes_Results->Divide(3,2);
   c_tRes_Results->cd(1);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/tresb0pct_2d")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResB0pct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in B0");
   tmpHist2D->Draw("COLZ");
   c_tRes_Results->cd(4);
@@ -152,11 +154,12 @@ void Process_Sim_Output(TString InFile = ""){
   tResGraphs[0]->SetMarkerStyle(21);
   tResGraphs[0]->GetXaxis()->SetRangeUser(0, 1.6);
   tResGraphs[0]->GetYaxis()->SetRangeUser(0, 30);
+  tResGraphs[0]->SetTitle("");
   tResGraphs[0]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
   tResGraphs[0]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
   tResGraphs[0]->Draw("AP");
   c_tRes_Results->cd(2);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/tresrppct_2d")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResRPpct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in RP");
   tmpHist2D->Draw("COLZ");
   c_tRes_Results->cd(5);
@@ -164,12 +167,13 @@ void Process_Sim_Output(TString InFile = ""){
   tResGraphs[1]->SetMarkerColor(kP6Red);
   tResGraphs[1]->SetMarkerStyle(21);
   tResGraphs[1]->GetXaxis()->SetRangeUser(0, 1.6);
-  tResGraphs[1]->GetYaxis()->SetRangeUser(0, 30);
+  tResGraphs[1]->GetYaxis()->SetRangeUser(0, 80);
+  tResGraphs[1]->SetTitle("");
   tResGraphs[1]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
   tResGraphs[1]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
   tResGraphs[1]->Draw("AP");
   c_tRes_Results->cd(3);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/treslcpct_2d")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResLCpct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - Method L");
   tmpHist2D->Draw("COLZ");
   c_tRes_Results->cd(6);
@@ -178,6 +182,7 @@ void Process_Sim_Output(TString InFile = ""){
   tResGraphs[2]->SetMarkerStyle(21);
   tResGraphs[2]->GetXaxis()->SetRangeUser(0, 1.6);
   tResGraphs[2]->GetYaxis()->SetRangeUser(0, 80);
+  tResGraphs[2]->SetTitle("");
   tResGraphs[2]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
   tResGraphs[2]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
   tResGraphs[2]->Draw("AP");

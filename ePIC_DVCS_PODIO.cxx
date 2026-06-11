@@ -498,12 +498,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH1D* h_t_LCReco = new TH1D("t_lcreco",";|t_{e''gamma}|(Reco.) [(GeV/#it{c}^{2})^{2}]"   , 20, 0., 2.);
 
   // 4) t resolution - as absolute or as percentage (plot as preferred)
-  TH2D* h_tResB0_2d = new TH2D("tresb0_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h_tResRP_2d = new TH2D("tresrp_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h_tResLC_2d    = new TH2D("treslc_2d",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h_tResB0Pct_2d = new TH2D("tresb0pct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.);
-  TH2D* h_tResRPPct_2d = new TH2D("tresrppct_2d",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.); 
-  TH2D* h_tResLCPct_2d = new TH2D("treslcpct_2d",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}", 20, 0., 2., 400, -200., 200.);
+  TH2D* h2_tResB0 = new TH2D("h2_tResB0",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
+  TH2D* h2_tResRP = new TH2D("h2_tResRP",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
+  TH2D* h2_tResLC    = new TH2D("h2_tResLC",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
+  TH2D* h2_tResB0Pct = new TH2D("h2_tResB0pct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
+  TH2D* h2_tResRPPct = new TH2D("h2_tResRPpct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}  (%)", 20, 0., 2., 400, -200., 200.); 
+  TH2D* h2_tResLCPct = new TH2D("h2_tResLCpt",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
   
   // 5) Inclusive event kinematics - distributions, 2D response and resolution
   // 5a) 1D distributions
@@ -1438,25 +1438,25 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size()==0){
 	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rec[0]);
-	h_tResB0_2d->Fill(t_gen, (t_rec-t_gen));
-	h_tResB0Pct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
+	h2_tResB0->Fill(t_gen, (t_rec-t_gen));
+	h2_tResB0Pct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
 	// Fill Method L hists in all cases!
 	t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
 	t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);	
-	h_tResLC_2d->Fill(t_gen, (t_rec-t_gen));
-	h_tResLCPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
+	h2_tResLC->Fill(t_gen, (t_rec-t_gen));
+	h2_tResLCPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all") 
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rom, scatg4_rec, "RP") && scatp4_rec.size()==0){
 	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rom[0]);
-	h_tResRP_2d->Fill(t_gen, (t_rec-t_gen));
-	h_tResRPPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
+	h2_tResRP->Fill(t_gen, (t_rec-t_gen));
+	h2_tResRPPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
 	// Fill Method L hists in all cases!
 	t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
 	t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);	
-	h_tResLC_2d->Fill(t_gen, (t_rec-t_gen));
-	h_tResLCPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
+	h2_tResLC->Fill(t_gen, (t_rec-t_gen));
+	h2_tResLCPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "semi")
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "semi")){
@@ -1464,8 +1464,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 //&& applyCuts_Electron(beame4,scate4_gen) && applyCuts_Photon(scatg4_gen)){
 	t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
 	t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);
-	h_tResLC_2d->Fill(t_gen, (t_rec-t_gen));
-	h_tResLCPct_2d->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
+	h2_tResLC->Fill(t_gen, (t_rec-t_gen));
+	h2_tResLCPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
       }
 
       // Missing mass histos - only apply multiplicity and track quality cuts
@@ -1522,12 +1522,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
   h_t_LCAcc->Write();
   h_t_LCReco->Write();
   // 2D t resolution
-  h_tResB0_2d->Write();
-  h_tResRP_2d->Write();
-  h_tResB0Pct_2d->Write();
-  h_tResRPPct_2d->Write();
-  h_tResLC_2d->Write();
-  h_tResLCPct_2d->Write();
+  h2_tResB0->Write();
+  h2_tResRP->Write();
+  h2_tResB0Pct->Write();
+  h2_tResRPPct->Write();
+  h2_tResLC->Write();
+  h2_tResLCPct->Write();
   // Trento phi
   h_TPhi_MC->Write();
   h_TPhi_B0Acc->Write();
@@ -1608,12 +1608,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
   gDirectory->cd("../");
   gDirectory->mkdir("t_Resolution_Plots");
   gDirectory->cd("t_Resolution_Plots");
-  h_tResB0_2d->Write();
-  h_tResRP_2d->Write();
-  h_tResB0Pct_2d->Write();
-  h_tResRPPct_2d->Write();
-  h_tResLC_2d->Write();
-  h_tResLCPct_2d->Write();
+  h2_tResB0->Write();
+  h2_tResRP->Write();
+  h2_tResB0Pct->Write();
+  h2_tResRPPct->Write();
+  h2_tResLC->Write();
+  h2_tResLCPct->Write();
   
   return;
 }
