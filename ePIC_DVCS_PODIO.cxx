@@ -771,7 +771,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       } // fi (fileCounter == 0)
       //else std::cout<<"Using beams from first file."<<std::endl;
     } // fi (!kUseEventBeams)
-
+    
     // (Re)Run reader for main events
     for(size_t ev = 0; ev < reader.getEntries("events"); ev++){
       // Load next event
@@ -791,7 +791,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
       vector<P3EVector> scatp4_rec;   // Scattered proton (B0 reconstructed)
       vector<P3EVector> scatp4_rom;   // Scattered proton (Roman Pots reconstructed)
       vector<P3EVector> scatg4_rec;   // Scattered photon (reconstructed)     
-      
+
+      int eMCIndex, gMCIndex;
       // MC truth
       auto& mcparts = event.get<edm4hep::MCParticleCollection>("MCParticlesHeadOnFrameNoBeamFX");
       for(const auto& mcp : mcparts){
@@ -813,8 +814,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  P3EVector temp(mcp.getMomentum().x, mcp.getMomentum().y, mcp.getMomentum().z, 
 			 calcE(mcp.getMomentum().x, mcp.getMomentum().y, mcp.getMomentum().z, mcp.getMass()));
 	  
-	  if(mcp.getPDG() == 11)   scate4_gen.push_back(temp);
-	  if(mcp.getPDG() == 22)   scatg4_gen.push_back(temp);
+	  if(mcp.getPDG() == 11){scate4_gen.push_back(temp); eMCIndex = mcp;}
+	  if(mcp.getPDG() == 22){scatg4_gen.push_back(temp); gMCIndex = mcp;}
 	  if(mcp.getPDG() == 2212) scatp4_gen.push_back(temp);
 	} // fi (mcp.getGeneratorStatus() == 1)
       } // END OF MCPARTICLES LOOP
