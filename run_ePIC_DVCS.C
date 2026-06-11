@@ -68,7 +68,7 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
 
   // Set other behaviours
   objDVCS->setUsePID(kFALSE);
-  objDVCS->setUseExplicitMatch(kFALSE);
+  objDVCS->setUseExplicitMatch(kTRUE);
   objDVCS->setUseEventBeams(kFALSE);
 
   objDVCS->doAnalysis();

@@ -791,8 +791,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       vector<P3EVector> scatp4_rec;   // Scattered proton (B0 reconstructed)
       vector<P3EVector> scatp4_rom;   // Scattered proton (Roman Pots reconstructed)
       vector<P3EVector> scatg4_rec;   // Scattered photon (reconstructed)     
-
-      int eMCIndex, gMCIndex;
+      
       // MC truth
       auto& mcparts = event.get<edm4hep::MCParticleCollection>("MCParticlesHeadOnFrameNoBeamFX");
       for(const auto& mcp : mcparts){
@@ -814,8 +813,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  P3EVector temp(mcp.getMomentum().x, mcp.getMomentum().y, mcp.getMomentum().z, 
 			 calcE(mcp.getMomentum().x, mcp.getMomentum().y, mcp.getMomentum().z, mcp.getMass()));
 	  
-	  if(mcp.getPDG() == 11){scate4_gen.push_back(temp); eMCIndex = mcp;}
-	  if(mcp.getPDG() == 22){scatg4_gen.push_back(temp); gMCIndex = mcp;}
+	  if(mcp.getPDG() == 11)   scate4_gen.push_back(temp);
+	  if(mcp.getPDG() == 22)   scatg4_gen.push_back(temp);
 	  if(mcp.getPDG() == 2212) scatp4_gen.push_back(temp);
 	} // fi (mcp.getGeneratorStatus() == 1)
       } // END OF MCPARTICLES LOOP
@@ -826,7 +825,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	// Declare holding vector variables
 	P3EVector temp_mca(0,0,0,0);
 	P3EVector temp_rec(0,0,0,0);
-	
 	// CASE 1: Using explicit MC matching
 	// Only fill arrays if associated MC exists
 	if(kUseExplicitMatch){
@@ -846,7 +844,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	    
 	    // Add to particle arrays
 	    scate4_aso.push_back(temp_mca); 
-	    scate4_rec.push_back(temp_rec); 
+	    scate4_rec.push_back(temp_rec);
 	  }
 	  // Photons - from sim.getPDG() flag
 	  else if(mcreco.getSim().getGeneratorStatus() == 1 && mcreco.getSim().getPDG() == 22){
