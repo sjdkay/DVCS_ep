@@ -32,7 +32,7 @@ void Process_Sim_Output(TString InFile = ""){
   const int nxBbins = sizeof(xBedges)/sizeof(xBedges[0]) - 1;
   const int ntbins  = sizeof(tedges)/sizeof(tedges[0]) - 1;
   TH1D* tmpHist1D;
-  //kP6Violet  
+  TH2D* tmpHist2D;
   TCanvas* c_Q2xB_Results[9];
   TLatex *Q2_Range_Text[9];
   TLegend* Leg_tComp = new TLegend (0.1, 0.2, 0.9, 0.6);
@@ -137,27 +137,50 @@ void Process_Sim_Output(TString InFile = ""){
       c_Q2xB_Results2[binq2]->Print(OutPdf2);
     }
   }
-  
-}
 
-// Use this to extract t resolutions from Deltat(t) plots
-// TGraphErrors* tRes_Graphs[4];
-// TCanvas* c_tResResults[4];
-// TCanvas* c_tResResults_2D[4];
-// tmpHist2D=((TH2D*)gDirectory->FindObject("h2_tRes_Result_0")); // Overall -t dist, all Q2 bins
-// tRes_Graphs[0] = extractResolution(tmpHist2D);
-// c_tResResults[0] = new TCanvas("c_tResResults_0", "-t Resolution, all Q2 bins", 100, 0, 2560, 1920);
-// tRes_Graphs[0]->SetMarkerColor(kP6Red);
-// tRes_Graphs[0]->SetMarkerStyle(21);
-// tRes_Graphs[0]->GetXaxis()->SetRangeUser(0, 0.5);
-// tRes_Graphs[0]->GetYaxis()->SetRangeUser(0, 0.1);
-// tRes_Graphs[0]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
-// tRes_Graphs[0]->GetYaxis()->SetTitle("RMS(#Delta t)");
-// tRes_Graphs[0]->Draw("AP");
-// c_tResResults[0]->Print(Form("%s/PaperPlots/%s_tRes_AllQ2.png", OutDir.Data(), InBeamE.Data()));
-// c_tResResults_2D[0] = new TCanvas("c_tResResults_2D_0", "-t Resolution, all Q2 bins, 2D", 100, 0, 2560, 1920);
-// tmpHist2D->SetTitle("");
-// tmpHist2D->GetXaxis()->SetRangeUser(0, 0.5);
-// tmpHist2D->Draw("COLZ");
-// c_tResResults_2D[0]->SetLogz();
-// c_tResResults_2D[0]->Print(Form("%s/PaperPlots/%s_tRes_2D_AllQ2.png", OutDir.Data(), InBeamE.Data()));
+  TCanvas* c_tRes_Results =  new TCanvas("c_tResResults", "t Resolutions", 100, 0, 2560, 1920);
+  TString OutPdf3 = Form("%s_tRes_Results.pdf", (InFile.Remove(InFile.Length() - 5)).Data());
+  TGraphErrors *tResGraphs[3];
+  c_tRes_Results->Divide(3,2);
+  c_tRes_Results->cd(1);
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/tresb0pct_2d")));
+  tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in B0");
+  tmpHist2D->Draw("COLZ");
+  c_tRes_Results->cd(4);
+  tResGraphs[0]=extractResolution(tmpHist2D);
+  tResGraphs[0]->SetMarkerColor(kP6Red);
+  tResGraphs[0]->SetMarkerStyle(21);
+  tResGraphs[0]->GetXaxis()->SetRangeUser(0, 1.6);
+  tResGraphs[0]->GetYaxis()->SetRangeUser(0, 30);
+  tResGraphs[0]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
+  tResGraphs[0]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
+  tResGraphs[0]->Draw("AP");
+  c_tRes_Results->cd(2);
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/tresrppct_2d")));
+  tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in RP");
+  tmpHist2D->Draw("COLZ");
+  c_tRes_Results->cd(5);
+  tResGraphs[1]=extractResolution(tmpHist2D);
+  tResGraphs[1]->SetMarkerColor(kP6Red);
+  tResGraphs[1]->SetMarkerStyle(21);
+  tResGraphs[1]->GetXaxis()->SetRangeUser(0, 1.6);
+  tResGraphs[1]->GetYaxis()->SetRangeUser(0, 30);
+  tResGraphs[1]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
+  tResGraphs[1]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
+  tResGraphs[1]->Draw("AP");
+  c_tRes_Results->cd(3);
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/treslcpct_2d")));
+  tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - Method L");
+  tmpHist2D->Draw("COLZ");
+  c_tRes_Results->cd(6);
+  tResGraphs[2]=extractResolution(tmpHist2D);
+  tResGraphs[2]->SetMarkerColor(kP6Red);
+  tResGraphs[2]->SetMarkerStyle(21);
+  tResGraphs[2]->GetXaxis()->SetRangeUser(0, 1.6);
+  tResGraphs[2]->GetYaxis()->SetRangeUser(0, 80);
+  tResGraphs[2]->GetXaxis()->SetTitle("-t_{MC} (GeV^{2})");
+  tResGraphs[2]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
+  tResGraphs[2]->Draw("AP");
+  c_tRes_Results->Print(OutPdf3);
+
+}
