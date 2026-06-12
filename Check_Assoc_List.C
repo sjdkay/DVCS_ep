@@ -10,7 +10,7 @@ using namespace ROOT::Math;
 #include "ePICStyle.C"
 #include <vector>
 
-void Check_Assoc(TString InFile = ""){
+void Check_Assoc_List(TString InFile = ""){
 
   if(CheckFile(InFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
     exit(1);
