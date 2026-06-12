@@ -17,7 +17,7 @@ void Check_Assoc(TString InFile = ""){
   }
 
   TChain *AnalysisChain = new TChain("events");
-  ifstream fstream (inFile);
+  ifstream fstream (InFile);
   string line;
   int FileCount = 0;
   while(getline(fstream, line)){
@@ -34,7 +34,7 @@ void Check_Assoc(TString InFile = ""){
   cout << "All files in file list - " << FileList << " - added to chain" << endl;
 
   TTreeReader tree_reader(AnalysisChain);
-  TFile *ofile = TFile::Open(Form("%s_OutputHists.root", ((InFile.Remove(InFile.Length() - 5)).erase(0, 24)).Data()),"RECREATE"); // 22 cuts the .eicrecon.edm4eic.root from the original input file name
+  TFile *ofile = TFile::Open(Form("%s_OutputHists.root", ((InFile.Remove(InFile.Length() - 5)).Remove(0, 24)).Data()),"RECREATE"); // 22 cuts the .eicrecon.edm4eic.root from the original input file name
 
   XYZVector Vec_pSc_MC;
   XYZVector Vec_pSc_Rec;
