@@ -501,9 +501,9 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH2D* h2_tResB0 = new TH2D("h2_tResB0",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
   TH2D* h2_tResRP = new TH2D("h2_tResRP",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
   TH2D* h2_tResLC    = new TH2D("h2_tResLC",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat [(GeV/#it{c})^{2}]", 20, 0., 2., 500, -5., 5.);
-  TH2D* h2_tResB0Pct = new TH2D("h2_tResB0pct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
-  TH2D* h2_tResRPPct = new TH2D("h2_tResRPpct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}  (%)", 20, 0., 2., 400, -200., 200.); 
-  TH2D* h2_tResLCPct = new TH2D("h2_tResLCpt",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
+  TH2D* h2_tResB0Pct = new TH2D("h2_tResB0Pct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
+  TH2D* h2_tResRPPct = new TH2D("h2_tResRPPct",";|t|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC}  (%)", 20, 0., 2., 400, -200., 200.); 
+  TH2D* h2_tResLCPct = new TH2D("h2_tResLCPct",";|t_{e'#gamma}|_{MC} [(GeV/#it{c})^{2}];#Deltat/t_{MC} (%)", 20, 0., 2., 400, -200., 200.);
   
   // 5) Inclusive event kinematics - distributions, 2D response and resolution
   // 5a) 1D distributions
@@ -1177,7 +1177,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
       //cout<<"[DEBUG] Reco. E-Pz (full evt., B0 proton) filled"<<endl;
 
       // B0 events
-      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size() == 0){	
+      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0")){	
+	//if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size() == 0){	
 	// Calculations
 	Float_t t_acc = calcT_BABE(beamp4,scatp4_aso[0]);
 	Float_t t_rec = calcT_BABE(beamp4,scatp4_rec[0]);
