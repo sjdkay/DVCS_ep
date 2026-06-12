@@ -160,7 +160,7 @@ void Process_Sim_Output(TString InFile = ""){
   tResGraphs[0]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
   tResGraphs[0]->Draw("AP");
   c_tRes_Results->cd(2);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResRPpct")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResRPPct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in RP");
   tmpHist2D->Draw("COLZ");
   gPad->SetLogz(1);
