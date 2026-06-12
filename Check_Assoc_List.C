@@ -45,7 +45,8 @@ void Check_Assoc_List(TString InFile = ""){
   XYZVector Vec_pSc_Rec_Rot;
   XYZVector Vec_pSc_RecAssoc;
   XYZVector Vec_pSc_RecAssoc_Rot;
-
+  //XYZVector Vec_tmpRP;
+  
   TLegend* Leg_Comp = new TLegend (0.1, 0.2, 0.9, 0.6);
   
   TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
@@ -116,12 +117,15 @@ void Check_Assoc_List(TString InFile = ""){
     } // End association loop
     if(B0_Part == kFALSE){ // If not in B0, check RP - No associations for RP (?)
       for(unsigned int i = 0; i < RP_Px.GetSize(); i++){
-	Vec_pSc_Rec.SetXYZ(RP_Px[i], RP_Py[i], RP_Pz[i]);
-	if(Vec_pSc_Rec.Theta() < 0.025){// Only fill if in FF region
-	  h1_Theta_Rec->Fill(Vec_pSc_Rec.Theta());
-	  h1_Theta_Rec_RP->Fill(Vec_pSc_Rec.Theta());
-	  h1_eta_Rec->Fill(Vec_pSc_Rec.eta());
-	  h1_eta_Rec_RP->Fill(Vec_pSc_Rec.eta());
+	//Vec_tmpRP.SetXYZ(RP_Px[i], RP_Py[i], RP_Pz[i]);
+	if(RP_Px.GetSize() == 1){ // Only fill if just 1 RP reconstructed track (for now), do something more sensible in future
+	  Vec_pSc_Rec.SetXYZ(RP_Px[i], RP_Py[i], RP_Pz[i]);
+	  if(Vec_pSc_Rec.Theta() < 0.025){// Only fill if in FF region
+	    h1_Theta_Rec->Fill(Vec_pSc_Rec.Theta());
+	    h1_Theta_Rec_RP->Fill(Vec_pSc_Rec.Theta());
+	    h1_eta_Rec->Fill(Vec_pSc_Rec.eta());
+	    h1_eta_Rec_RP->Fill(Vec_pSc_Rec.eta());
+	  }
 	}
       }
     }
@@ -153,7 +157,8 @@ void Check_Assoc_List(TString InFile = ""){
   Leg_Comp->AddEntry(h1_Theta_MC, "MC");
   Leg_Comp->AddEntry(h1_Theta_Rec, "Rec");
   Leg_Comp->AddEntry(h1_Theta_Rec_RP, "RecRP");
-  Leg_Comp->AddEntry(h1_Theta_RecAssoc, "RecB0}");
+  Leg_Comp->AddEntry(h1_Theta_RecAssoc, "RecB0");
+  gPad->SetLogy(1);
   c_Results->cd(2);
   h1_eta_MC->SetLineColor(kBlack);
   h1_eta_MC->SetTitle("#eta Comparison");
@@ -165,6 +170,7 @@ void Check_Assoc_List(TString InFile = ""){
   h1_eta_RecAssoc->SetLineColor(kP6Red);
   h1_eta_RecAssoc->Draw("SAMEHISTERR");
   gPad->SetLogy(1);
+  // Add rough efficiency plots here - Need true MC/true MC for reco parts!
   c_Results->cd(4);
   Leg_Comp->Draw("SAME");
   c_Results->Print(OutPdf);
