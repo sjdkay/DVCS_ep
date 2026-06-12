@@ -2,3 +2,4 @@ filelists/*
 Output/*
 *.root
 *.hepmc3
+*.pdf
