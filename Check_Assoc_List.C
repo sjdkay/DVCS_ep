@@ -94,6 +94,7 @@ void Check_Assoc_List(TString InFile = ""){
     } // End MC loop'
     if(Vec_pSc_MC.Theta() < 0.0005){continue;} // Skip events where p' MC theta is below 0.5mrad 
     h1_Theta_MC->Fill(Vec_pSc_MC.Theta());
+    h1_eta_MC->Fill(Vec_pSc_MC.eta());
     if(0.005 > Vec_pSc_MC.Theta()){
       h1_Theta_MC_RP->Fill(Vec_pSc_MC.Theta());
       h1_eta_MC_RP->Fill(Vec_pSc_MC.eta());      
@@ -135,27 +136,13 @@ void Check_Assoc_List(TString InFile = ""){
     }
   } // End event while loop
 
-  // TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_MC_RP = new TH1D("h1_Theta_MC_RP", "#theta_{MC} in RP; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_MC_B0 = new TH1D("h1_Theta_MC_B0", "#theta_{MC} in B0; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_MCAssoc = new TH1D("h1_Theta_MCAssoc", "#theta_{MCAssoc}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_RecAssoc = new TH1D("h1_Theta_RecAssoc", "#theta_{RecAssoc}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  // TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-
-  // TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_MC_B0 = new TH1D("h1_eta_MC_B0", "#eta_{MC} in B0; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_MCAssoc = new TH1D("h1_eta_MCAssoc", "#eta_{MCAssoc}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_RecAssoc = new TH1D("h1_eta_RecAssoc", "#eta_{RecAssoc}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_Rec = new TH1D("h1_eta_Rec", "#eta_{Rec}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  // TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.1 bin", 100, 0, 10);
   TCanvas* c_Results;
   TString OutPdf = Form("%s_pSc_Rec_Results.pdf", InFile.Data());
   c_Results = new TCanvas("c_Results","pSc_Rec_Results", 100, 0, 2560, 1920);
   c_Results->Divide(2,2); 
   c_Results->cd(1);
   h1_Theta_MC->SetLineColor(kBlack);
+  h1_Theta_MC->SetTitle("#theta Comparison");
   h1_Theta_MC->Draw("HISTERR");
   h1_Theta_Rec->SetLineColor(kP6Blue);
   h1_Theta_Rec->Draw("SAMEHISTERR");
@@ -169,6 +156,7 @@ void Check_Assoc_List(TString InFile = ""){
   Leg_Comp->AddEntry(h1_Theta_RecAssoc, "RecB0}");
   c_Results->cd(2);
   h1_eta_MC->SetLineColor(kBlack);
+  h1_eta_MC->SetTitle("#eta Comparison");
   h1_eta_MC->Draw("HISTERR");
   h1_eta_Rec->SetLineColor(kP6Blue);
   h1_eta_Rec->Draw("SAMEHISTERR");
