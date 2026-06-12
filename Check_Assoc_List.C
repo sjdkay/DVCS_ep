@@ -64,7 +64,13 @@ void Check_Assoc_List(TString InFile = ""){
   TTreeReaderArray<float>  RP_Py(tree_reader, "ForwardRomanPotRecParticles.momentum.y");
   TTreeReaderArray<float>  RP_Pz(tree_reader, "ForwardRomanPotRecParticles.momentum.z");
 
+  cout << "Processing - " << nEntries << " events" << endl;
+  
   while(tree_reader.Next()){ // Loop over all events
+    EventCounter++;
+    if ( EventCounter % ( nEntries / 20 ) == 0 ) {
+      cout << "Processed " << setw(4) << ceil(((1.0*EventCounter)/(1.0*nEntries))*100.0) << " % of events - " << EventCounter << endl;
+    }
     // Reset index and reset vector for each event
     int pSc_Index = 0;
     Bool_t B0_Part=kFALSE;

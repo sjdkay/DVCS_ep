@@ -17,6 +17,7 @@ Bool_t eBeam, pBeam, eSc, pSc, Gamma, GoodEvent;
 
 RotationY rY(0.025);
 int nEntries = 0;
+int EventCounter = 0;
 
 Bool_t CheckFile(TString File){
   Bool_t FileCheck = kTRUE;
