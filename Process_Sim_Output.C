@@ -145,7 +145,7 @@ void Process_Sim_Output(TString InFile = ""){
   TGraphErrors *tResGraphs[3];
   c_tRes_Results->Divide(3,2);
   c_tRes_Results->cd(1);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResB0pct")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResB0Pct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - p' in B0");
   tmpHist2D->Draw("COLZ");
   gPad->SetLogz(1);
@@ -175,7 +175,7 @@ void Process_Sim_Output(TString InFile = ""){
   tResGraphs[1]->GetYaxis()->SetTitle("RMS(#Delta t) (%)");
   tResGraphs[1]->Draw("AP");
   c_tRes_Results->cd(3);
-  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResLCpt")));
+  tmpHist2D = (TH2D*)(((TH2D*)File->Get("t_Resolution_Plots/h2_tResLCPct")));
   tmpHist2D->SetTitle("#Deltat/t_{MC}(t_{MC}) - Method L");
   tmpHist2D->Draw("COLZ");
   gPad->SetLogz(1);
