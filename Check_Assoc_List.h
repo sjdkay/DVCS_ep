@@ -16,6 +16,7 @@ Double_t Q2, xB, t, y;
 Bool_t eBeam, pBeam, eSc, pSc, Gamma, GoodEvent;
 
 RotationY rY(0.025);
+int nEntries = 0;
 
 Bool_t CheckFile(TString File){
   Bool_t FileCheck = kTRUE;
