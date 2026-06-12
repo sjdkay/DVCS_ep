@@ -78,6 +78,7 @@ void Check_Assoc_List(TString InFile = ""){
     for (unsigned int i = 0; i < MC_Status.GetSize(); i++){
       if(MC_Status[i] == 1 && MC_PID[i] == 2212){Vec_pSc_MC.SetXYZ(MC_Px[i],MC_Px[i],MC_Pz[i]); pSc_Index = i;}
     } // End MC loop'
+    if(Vec_pSc_MC.Theta() < 0.0005){continue}; // Skip events where p' MC theta is below 0.5mrad 
     h1_Theta_MC->Fill(Vec_pSc_MC.Theta());
     if(0.005 > Vec_pSc_MC.Theta()){
       h1_Theta_MC_RP->Fill(Vec_pSc_MC.Theta());
