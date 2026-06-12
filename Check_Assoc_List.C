@@ -6,7 +6,7 @@
 using namespace ROOT::Math;
 
 #include "TString.h"
-#include "Check_Assoc.h"
+#include "Check_Assoc_List.h"
 #include "ePICStyle.C"
 #include <vector>
 
@@ -31,7 +31,7 @@ void Check_Assoc(TString InFile = ""){
     else AnalysisChain->Add(tmpFile);
     FileCount++;
   }
-  cout << "All files in file list - " << FileList << " - added to chain" << endl;
+  cout << "All files in file list - " << InFile << " - added to chain" << endl;
 
   TTreeReader tree_reader(AnalysisChain);
   TFile *ofile = TFile::Open(Form("%s_OutputHists.root", ((InFile.Remove(InFile.Length() - 5)).Remove(0, 24)).Data()),"RECREATE"); // 22 cuts the .eicrecon.edm4eic.root from the original input file name
