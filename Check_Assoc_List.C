@@ -51,12 +51,12 @@ void Check_Assoc_List(TString InFile = ""){
   TLegend* Leg_Comp2 = new TLegend (0.1, 0.2, 0.9, 0.6);
   TLegend* Leg_Comp3 = new TLegend (0.1, 0.2, 0.9, 0.6);
   
-  TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_MC_RP = new TH1D("h1_Theta_MC_RP", "#theta_{MC} in RP; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_MC_B0 = new TH1D("h1_Theta_MC_B0", "#theta_{MC} in B0; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_RecAssoc = new TH1D("h1_Theta_RecAssoc", "#theta_{RecAssoc}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_MC_RP = new TH1D("h1_Theta_MC_RP", "#theta_{MC} in RP; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_MC_B0 = new TH1D("h1_Theta_MC_B0", "#theta_{MC} in B0; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_RecAssoc = new TH1D("h1_Theta_RecAssoc", "#theta_{RecAssoc}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
 
   TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.05 bin", 60, 4, 10);
   TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.05 bin", 60, 4, 10);
@@ -66,9 +66,9 @@ void Check_Assoc_List(TString InFile = ""){
   TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.05 bin", 60, 4, 10);
 
   // Series of hists for efficiency plots
-  TH1D* h1_Theta_pScRecMC = new TH1D("h1_Theta_MC_pScRec", "#theta_{MC}, p' Rec; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_MC_pScRecRP = new TH1D("h1_Theta_MC_pScRecRP", "#theta_{MC}, p' in RP; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
-  TH1D* h1_Theta_MC_pScRecB0 = new TH1D("h1_Theta_MC_pScRecB0", "#theta_{MC}, p' in B0; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_pScRecMC = new TH1D("h1_Theta_MC_pScRec", "#theta_{MC}, p' Rec; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_MC_pScRecRP = new TH1D("h1_Theta_MC_pScRecRP", "#theta_{MC}, p' in RP; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
+  TH1D* h1_Theta_MC_pScRecB0 = new TH1D("h1_Theta_MC_pScRecB0", "#theta_{MC}, p' in B0; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
   TH1D* h1_eta_MC_pScRec = new TH1D("h1_eta_MC_pScRec", "#eta_{MC}, p' Rec; #eta ; Counts/0.2 bin", 60, 4, 10);
   TH1D* h1_eta_MC_pScRecRP = new TH1D("h1_eta_MC_pScRecRP", "#eta_{MC}, p' in RP; #eta ; Counts/0.2 bin", 60, 4, 10);
   TH1D* h1_eta_MC_pScRecB0 = new TH1D("h1_eta_MC_pScRecB0", "#eta_{MC}, p' in B0; #eta ; Counts/0.2 bin", 60, 4, 10);
@@ -101,28 +101,28 @@ void Check_Assoc_List(TString InFile = ""){
     for (unsigned int i = 0; i < MC_Status.GetSize(); i++){
       if(MC_Status[i] == 1 && MC_PID[i] == 2212){Vec_pSc_MC.SetXYZ(MC_Px[i],MC_Px[i],MC_Pz[i]); pSc_Index = i;}
     } // End MC loop'
-    if(Vec_pSc_MC.Theta() < 0.0005){continue;} // Skip events where p' MC theta is below 0.5mrad 
-    h1_Theta_MC->Fill(Vec_pSc_MC.Theta());
+    if(Vec_pSc_MC.Theta()*1000 < 0.5){continue;} // Skip events where p' MC theta is below 0.5mrad 
+    h1_Theta_MC->Fill(Vec_pSc_MC.Theta()*1000);
     h1_eta_MC->Fill(Vec_pSc_MC.eta());
-    if(0.005 > Vec_pSc_MC.Theta()){
-      h1_Theta_MC_RP->Fill(Vec_pSc_MC.Theta());
+    if(0.005 > Vec_pSc_MC.Theta()*1000){
+      h1_Theta_MC_RP->Fill(Vec_pSc_MC.Theta()*1000);
       h1_eta_MC_RP->Fill(Vec_pSc_MC.eta());      
     }
-    if(0.0055 < Vec_pSc_MC.Theta() && 0.02 > Vec_pSc_MC.Theta()){
-      h1_Theta_MC_B0->Fill(Vec_pSc_MC.Theta());
+    if(0.0055 < Vec_pSc_MC.Theta()*1000 && 0.02 > Vec_pSc_MC.Theta()*1000){
+      h1_Theta_MC_B0->Fill(Vec_pSc_MC.Theta()*1000);
       h1_eta_MC_B0->Fill(Vec_pSc_MC.eta());
     }
     for(unsigned int i = 0; i < TSCPSim_Assoc.GetSize(); i++){
       if (TSCPSim_Assoc[i] == pSc_Index){ // If matching track for p' found, assign reconstructed p' 3 vector
 	Vec_pSc_RecAssoc.SetXYZ(TSCP_Px[TSCPRec_Assoc[i]], TSCP_Py[TSCPRec_Assoc[i]], TSCP_Pz[TSCPRec_Assoc[i]]);
 	Vec_pSc_RecAssoc_Rot = rY*Vec_pSc_RecAssoc;
-	h1_Theta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.Theta()); 
+	h1_Theta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.Theta()*1000); 
 	h1_eta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.eta());
-	h1_Theta_Rec->Fill(Vec_pSc_Rec_Rot.Theta());
+	h1_Theta_Rec->Fill(Vec_pSc_Rec_Rot.Theta()*1000);
 	h1_eta_Rec->Fill(Vec_pSc_Rec_Rot.eta());
       	// Fill true MC info for particles that have reconstructed in B0
-	h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta());
-	h1_Theta_MC_pScRecB0->Fill(Vec_pSc_MC.Theta());
+	h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta()*1000);
+	h1_Theta_MC_pScRecB0->Fill(Vec_pSc_MC.Theta()*1000);
 	h1_eta_MC_pScRec->Fill(Vec_pSc_MC.eta());
 	h1_eta_MC_pScRecB0->Fill(Vec_pSc_MC.eta());
 	B0_Part=kTRUE;
@@ -133,14 +133,14 @@ void Check_Assoc_List(TString InFile = ""){
 	//Vec_tmpRP.SetXYZ(RP_Px[i], RP_Py[i], RP_Pz[i]);
 	if(RP_Px.GetSize() == 1){ // Only fill if just 1 RP reconstructed track (for now), do something more sensible in future
 	  Vec_pSc_Rec.SetXYZ(RP_Px[i], RP_Py[i], RP_Pz[i]);
-	  if(Vec_pSc_Rec.Theta() < 0.025){// Only fill if in FF region
-	    h1_Theta_Rec->Fill(Vec_pSc_Rec.Theta());
-	    h1_Theta_Rec_RP->Fill(Vec_pSc_Rec.Theta());
+	  if(Vec_pSc_Rec.Theta()*1000 < 25){// Only fill if in FF region
+	    h1_Theta_Rec->Fill(Vec_pSc_Rec.Theta()*1000);
+	    h1_Theta_Rec_RP->Fill(Vec_pSc_Rec.Theta()*1000);
 	    h1_eta_Rec->Fill(Vec_pSc_Rec.eta());
 	    h1_eta_Rec_RP->Fill(Vec_pSc_Rec.eta());
 	    // Fill true MC info for particles that have reconstructed in B0
-	    h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta());
-	    h1_Theta_MC_pScRecRP->Fill(Vec_pSc_MC.Theta());
+	    h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta()*1000);
+	    h1_Theta_MC_pScRecRP->Fill(Vec_pSc_MC.Theta()*1000);
 	    h1_eta_MC_pScRec->Fill(Vec_pSc_MC.eta());
 	    h1_eta_MC_pScRecRP->Fill(Vec_pSc_MC.eta());
 	  }
@@ -149,18 +149,18 @@ void Check_Assoc_List(TString InFile = ""){
     }
   } // End event while loop
 
-  TH1D* h1_Eff_Theta = new TH1D("h1_Eff_Theta","Eff(#theta_{MC}); #theta_{MC} (mRad); Efficiency (%)", 125, 0, 0.025);
+  TH1D* h1_Eff_Theta = new TH1D("h1_Eff_Theta","Eff(#theta_{MC}); #theta_{MC} (mrad); Efficiency (%)", 125, 0, 25);
   h1_Eff_Theta->Divide(h1_Theta_pScRecMC, h1_Theta_MC, 1, 1, "b");
-  TH1D* h1_Eff_Theta_RP = new TH1D("h1_Eff_Theta_RP", "Eff(#theta_{MC}), p' in RP; #theta_{MC} (mRad); Efficiency (%)", 125, 0, 0.025);
+  TH1D* h1_Eff_Theta_RP = new TH1D("h1_Eff_Theta_RP", "Eff(#theta_{MC}), p' in RP; #theta_{MC} (mrad); Efficiency (%)", 125, 0, 25);
   h1_Eff_Theta_RP->Divide(h1_Theta_MC_pScRecRP, h1_Theta_MC, 1, 1, "b");
-  TH1D* h1_Eff_Theta_B0 = new TH1D("h1_Eff_Theta_B0", "Eff(#theta_{MC}), p' in B0; #theta_{MC} (mRad); Efficiency (%)",  125, 0, 0.025);
+  TH1D* h1_Eff_Theta_B0 = new TH1D("h1_Eff_Theta_B0", "Eff(#theta_{MC}), p' in B0; #theta_{MC} (mrad); Efficiency (%)",  125, 0, 25);
   h1_Eff_Theta_B0->Divide(h1_Theta_MC_pScRecB0, h1_Theta_MC, 1, 1, "b");
 
-  TH1D* h1_Eff_eta = new TH1D("h1_Eff_eta","Eff(#eta_{MC}); #eta_{MC} (mRad); Efficiency (%)", 60, 4, 10);
+  TH1D* h1_Eff_eta = new TH1D("h1_Eff_eta","Eff(#eta_{MC}); #eta_{MC} (mrad); Efficiency (%)", 60, 4, 10);
   h1_Eff_eta->Divide(h1_eta_MC_pScRec, h1_eta_MC, 1, 1, "b");
-  TH1D* h1_Eff_eta_RP = new TH1D("h1_Eff_eta_RP", "Eff(#eta_{MC}), p' in RP; #eta_{MC} (mRad); Efficiency (%)", 60, 4, 10);
+  TH1D* h1_Eff_eta_RP = new TH1D("h1_Eff_eta_RP", "Eff(#eta_{MC}), p' in RP; #eta_{MC} (mrad); Efficiency (%)", 60, 4, 10);
   h1_Eff_eta_RP->Divide(h1_eta_MC_pScRecRP, h1_eta_MC, 1, 1, "b");
-  TH1D* h1_Eff_eta_B0 = new TH1D("h1_Eff_eta_B0", "Eff(#eta_{MC}), p' in B0; #theta_{MC} (mRad); Efficiency (%)",  60, 4, 10);
+  TH1D* h1_Eff_eta_B0 = new TH1D("h1_Eff_eta_B0", "Eff(#eta_{MC}), p' in B0; #theta_{MC} (mrad); Efficiency (%)",  60, 4, 10);
   h1_Eff_eta_B0->Divide(h1_eta_MC_pScRecB0, h1_eta_MC, 1, 1, "b");
   
   TCanvas* c_Results;
