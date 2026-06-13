@@ -48,22 +48,30 @@ void Check_Assoc_List(TString InFile = ""){
   //XYZVector Vec_tmpRP;
   
   TLegend* Leg_Comp = new TLegend (0.1, 0.2, 0.9, 0.6);
+  TLegend* Leg_Comp2 = new TLegend (0.1, 0.2, 0.9, 0.6);
+  TLegend* Leg_Comp3 = new TLegend (0.1, 0.2, 0.9, 0.6);
   
-  TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_MC_RP = new TH1D("h1_Theta_MC_RP", "#theta_{MC} in RP; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_MC_B0 = new TH1D("h1_Theta_MC_B0", "#theta_{MC} in B0; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_MCAssoc = new TH1D("h1_Theta_MCAssoc", "#theta_{MCAssoc}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_RecAssoc = new TH1D("h1_Theta_RecAssoc", "#theta_{RecAssoc}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
-  TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mRad); Counts/0.1 mRad bin", 250, 0, 0.025);
+  TH1D* h1_Theta_MC = new TH1D("h1_Theta_MC", "#theta_{MC}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_MC_RP = new TH1D("h1_Theta_MC_RP", "#theta_{MC} in RP; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_MC_B0 = new TH1D("h1_Theta_MC_B0", "#theta_{MC} in B0; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_RecAssoc = new TH1D("h1_Theta_RecAssoc", "#theta_{RecAssoc}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
 
-  TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_MC_B0 = new TH1D("h1_eta_MC_B0", "#eta_{MC} in B0; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_MCAssoc = new TH1D("h1_eta_MCAssoc", "#eta_{MCAssoc}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_RecAssoc = new TH1D("h1_eta_RecAssoc", "#eta_{RecAssoc}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_Rec = new TH1D("h1_eta_Rec", "#eta_{Rec}; #eta ; Counts/0.1 bin", 100, 0, 10);
-  TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.1 bin", 100, 0, 10);
+  TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_B0 = new TH1D("h1_eta_MC_B0", "#eta_{MC} in B0; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_RecAssoc = new TH1D("h1_eta_RecAssoc", "#eta_{RecAssoc}; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_Rec = new TH1D("h1_eta_Rec", "#eta_{Rec}; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.05 bin", 60, 4, 10);
+
+  // Series of hists for efficiency plots
+  TH1D* h1_Theta_pScRecMC = new TH1D("h1_Theta_MC_pScRec", "#theta_{MC}, p' Rec; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_MC_pScRecRP = new TH1D("h1_Theta_MC_pScRecRP", "#theta_{MC}, p' in RP; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_Theta_MC_pScRecB0 = new TH1D("h1_Theta_MC_pScRecB0", "#theta_{MC}, p' in B0; #theta (mRad); Counts/0.2 mRad bin", 125, 0, 0.025);
+  TH1D* h1_eta_MC_pScRec = new TH1D("h1_eta_MC_pScRec", "#eta_{MC}, p' Rec; #eta ; Counts/0.2 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_pScRecRP = new TH1D("h1_eta_MC_pScRecRP", "#eta_{MC}, p' in RP; #eta ; Counts/0.2 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_pScRecB0 = new TH1D("h1_eta_MC_pScRecB0", "#eta_{MC}, p' in B0; #eta ; Counts/0.2 bin", 60, 4, 10);
   
   TTreeReaderArray<int>  MC_PID(tree_reader, "MCParticlesHeadOnFrameNoBeamFX.PDG");
   TTreeReaderArray<int>  MC_Status(tree_reader, "MCParticlesHeadOnFrameNoBeamFX.generatorStatus");
@@ -109,9 +117,14 @@ void Check_Assoc_List(TString InFile = ""){
 	Vec_pSc_RecAssoc.SetXYZ(TSCP_Px[TSCPRec_Assoc[i]], TSCP_Py[TSCPRec_Assoc[i]], TSCP_Pz[TSCPRec_Assoc[i]]);
 	Vec_pSc_RecAssoc_Rot = rY*Vec_pSc_RecAssoc;
 	h1_Theta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.Theta()); 
-	h1_Theta_MCAssoc->Fill(Vec_pSc_MC.Theta());
-	h1_eta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.eta()); 
-	h1_eta_MCAssoc->Fill(Vec_pSc_MC.eta());
+	h1_eta_RecAssoc->Fill(Vec_pSc_RecAssoc_Rot.eta());
+	h1_Theta_Rec->Fill(Vec_pSc_Rec_Rot.Theta());
+	h1_eta_Rec->Fill(Vec_pSc_Rec_Rot.eta());
+      	// Fill true MC info for particles that have reconstructed in B0
+	h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta());
+	h1_Theta_MC_pScRecB0->Fill(Vec_pSc_MC.Theta());
+	h1_eta_MC_pScRec->Fill(Vec_pSc_MC.eta());
+	h1_eta_MC_pScRecB0->Fill(Vec_pSc_MC.eta());
 	B0_Part=kTRUE;
       }
     } // End association loop
@@ -125,21 +138,31 @@ void Check_Assoc_List(TString InFile = ""){
 	    h1_Theta_Rec_RP->Fill(Vec_pSc_Rec.Theta());
 	    h1_eta_Rec->Fill(Vec_pSc_Rec.eta());
 	    h1_eta_Rec_RP->Fill(Vec_pSc_Rec.eta());
+	    // Fill true MC info for particles that have reconstructed in B0
+	    h1_Theta_pScRecMC->Fill(Vec_pSc_MC.Theta());
+	    h1_Theta_MC_pScRecRP->Fill(Vec_pSc_MC.Theta());
+	    h1_eta_MC_pScRec->Fill(Vec_pSc_MC.eta());
+	    h1_eta_MC_pScRecRP->Fill(Vec_pSc_MC.eta());
 	  }
 	}
       }
     }
-    // Fill all reconstructed particles, associated or not
-    for(unsigned int i = 0; i < TSCP_Px.GetSize(); i++){
-      Vec_pSc_Rec.SetXYZ(TSCP_Px[i], TSCP_Py[i], TSCP_Pz[i]);
-      Vec_pSc_Rec_Rot = rY*Vec_pSc_Rec;
-      if(Vec_pSc_Rec_Rot.Theta() < 0.025){// Only fill if in FF region
-	h1_Theta_Rec->Fill(Vec_pSc_Rec_Rot.Theta());
-	h1_eta_Rec->Fill(Vec_pSc_Rec_Rot.eta());
-      }
-    }
   } // End event while loop
 
+  TH1D* h1_Eff_Theta = new TH1D("h1_Eff_Theta","Eff(#theta_{MC}); #theta_{MC} (mRad); Efficiency (%)", 125, 0, 0.025);
+  h1_Eff_Theta->Divide(h1_Theta_pScRecMC, h1_Theta_MC, 1, 1, "b");
+  TH1D* h1_Eff_Theta_RP = new TH1D("h1_Eff_Theta_RP", "Eff(#theta_{MC}), p' in RP; #theta_{MC} (mRad); Efficiency (%)", 125, 0, 0.025);
+  h1_Eff_Theta_RP->Divide(h1_Theta_MC_pScRecRP, h1_Theta_MC, 1, 1, "b");
+  TH1D* h1_Eff_Theta_B0 = new TH1D("h1_Eff_Theta_B0", "Eff(#theta_{MC}), p' in B0; #theta_{MC} (mRad); Efficiency (%)",  125, 0, 0.025);
+  h1_Eff_Theta_B0->Divide(h1_Theta_MC_pScRecB0, h1_Theta_MC, 1, 1, "b");
+
+  TH1D* h1_Eff_eta = new TH1D("h1_Eff_eta","Eff(#eta_{MC}); #eta_{MC} (mRad); Efficiency (%)", 60, 4, 10);
+  h1_Eff_eta->Divide(h1_eta_MC_pScRec, h1_eta_MC, 1, 1, "b");
+  TH1D* h1_Eff_eta_RP = new TH1D("h1_Eff_eta_RP", "Eff(#eta_{MC}), p' in RP; #eta_{MC} (mRad); Efficiency (%)", 60, 4, 10);
+  h1_Eff_eta_RP->Divide(h1_eta_MC_pScRecRP, h1_eta_MC, 1, 1, "b");
+  TH1D* h1_Eff_eta_B0 = new TH1D("h1_Eff_eta_B0", "Eff(#eta_{MC}), p' in B0; #theta_{MC} (mRad); Efficiency (%)",  60, 4, 10);
+  h1_Eff_eta_B0->Divide(h1_eta_MC_pScRecB0, h1_eta_MC, 1, 1, "b");
+  
   TCanvas* c_Results;
   TString OutPdf = Form("%s_pSc_Rec_Results.pdf", InFile.Data());
   c_Results = new TCanvas("c_Results","pSc_Rec_Results", 100, 0, 2560, 1920);
@@ -170,10 +193,73 @@ void Check_Assoc_List(TString InFile = ""){
   h1_eta_RecAssoc->SetLineColor(kP6Red);
   h1_eta_RecAssoc->Draw("SAMEHISTERR");
   gPad->SetLogy(1);
-  // Add rough efficiency plots here - Need true MC/true MC for reco parts!
   c_Results->cd(4);
   Leg_Comp->Draw("SAME");
-  c_Results->Print(OutPdf);
+  c_Results->Print(OutPdf + "(");
+
+  TCanvas* c_Results2;
+  c_Results2 = new TCanvas("c_Results2","pSc_Rec_Results2", 100, 0, 2560, 1920);
+  c_Results2->Divide(3,2); 
+  c_Results2->cd(1);
+  h1_Theta_MC->SetLineColor(kBlack);
+  h1_Theta_MC->SetTitle("#theta_{MC} Comparison");
+  h1_Theta_MC->Draw("HISTERR");
+  h1_Theta_pScRecMC->SetLineColor(kP6Blue);
+  h1_Theta_pScRecMC->Draw("SAMEHISTERR");
+  h1_Theta_MC_pScRecRP->SetLineColor(kP6Yellow);  
+  h1_Theta_MC_pScRecRP->Draw("SAMEHISTERR"); 
+  h1_Theta_MC_pScRecB0->SetLineColor(kP6Red);  
+  h1_Theta_MC_pScRecB0->Draw("SAMEHISTERR"); 
+  gPad->SetLogy(1);
+  Leg_Comp2->AddEntry(h1_Theta_MC, "MC Truth");
+  Leg_Comp2->AddEntry(h1_Theta_pScRecMC, "MC Truth - Reconstructed p'");
+  Leg_Comp2->AddEntry(h1_Theta_MC_pScRecRP, "MC Truth - Reconstructed p' in RP");
+  Leg_Comp2->AddEntry(h1_Theta_MC_pScRecB0, "MC Truth - Reconstructed p' in B0");
+  c_Results2->cd(2);
+  h1_eta_MC->SetLineColor(kBlack);
+  h1_eta_MC->SetTitle("#eta_{MC} Comparison");
+  h1_eta_MC->Draw("HISTERR");
+  h1_eta_MC_pScRec->SetLineColor(kP6Blue);
+  h1_eta_MC_pScRec->Draw("SAMEHISTERR");
+  h1_eta_MC_pScRecRP->SetLineColor(kP6Yellow);  
+  h1_eta_MC_pScRecRP->Draw("SAMEHISTERR"); 
+  h1_eta_MC_pScRecB0->SetLineColor(kP6Red);  
+  h1_eta_MC_pScRecB0->Draw("SAMEHISTERR"); 
+  gPad->SetLogy(1);
+  c_Results2->cd(3);
+  Leg_Comp2->Draw("SAME");
+  c_Results2->cd(4);
+  h1_Eff_Theta->SetLineColor(kP6Blue);
+  h1_Eff_Theta->Sumw2();
+  h1_Eff_Theta->Scale(100);
+  h1_Eff_Theta->Draw("HISTERR");
+  h1_Eff_Theta_RP->SetLineColor(kP6Yellow);  
+  h1_Eff_Theta_RP->Sumw2();
+  h1_Eff_Theta_RP->Scale(100);
+  h1_Eff_Theta_RP->Draw("SAMEHISTERR"); 
+  h1_Eff_Theta_B0->SetLineColor(kP6Red);
+  h1_Eff_Theta_B0->Sumw2();
+  h1_Eff_Theta_B0->Scale(100);
+  h1_Eff_Theta_B0->Draw("SAMEHISTERR"); 
+  Leg_Comp3->AddEntry(h1_Eff_Theta, "Efficiency");
+  Leg_Comp3->AddEntry(h1_Eff_Theta_RP, "Efficiency - Reconstructed p' in RP");
+  Leg_Comp3->AddEntry(h1_Eff_Theta_B0, "Efficiency - Reconstructed p' in B0");
+  c_Results2->cd(5);
+  h1_Eff_eta->SetLineColor(kP6Blue);
+  h1_Eff_eta->Sumw2();
+  h1_Eff_eta->Scale(100);
+  h1_Eff_eta->Draw("HISTERR");
+  h1_Eff_eta_RP->SetLineColor(kP6Yellow);  
+  h1_Eff_eta_RP->Sumw2();
+  h1_Eff_eta_RP->Scale(100);
+  h1_Eff_eta_RP->Draw("SAMEHISTERR"); 
+  h1_Eff_eta_B0->SetLineColor(kP6Red);
+  h1_Eff_eta_B0->Sumw2();
+  h1_Eff_eta_B0->Scale(100);
+  h1_Eff_eta_B0->Draw("SAMEHISTERR"); 
+  c_Results2->cd(6);
+  Leg_Comp3->Draw("SAME");
+  c_Results2->Print(OutPdf + ")");
   
   ofile->Write();
   ofile->Close();
