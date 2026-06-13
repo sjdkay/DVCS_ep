@@ -58,20 +58,20 @@ void Check_Assoc_List(TString InFile = ""){
   TH1D* h1_Theta_Rec = new TH1D("h1_Theta_Rec", "#theta_{Rec}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
   TH1D* h1_Theta_Rec_RP = new TH1D("h1_Theta_Rec_RP", "#theta_{Rec_RP}; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
 
-  TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.05 bin", 60, 4, 10);
-  TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.05 bin", 60, 4, 10);
-  TH1D* h1_eta_MC_B0 = new TH1D("h1_eta_MC_B0", "#eta_{MC} in B0; #eta ; Counts/0.05 bin", 60, 4, 10);
-  TH1D* h1_eta_RecAssoc = new TH1D("h1_eta_RecAssoc", "#eta_{RecAssoc}; #eta ; Counts/0.05 bin", 60, 4, 10);
-  TH1D* h1_eta_Rec = new TH1D("h1_eta_Rec", "#eta_{Rec}; #eta ; Counts/0.05 bin", 60, 4, 10);
-  TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.05 bin", 60, 4, 10);
+  TH1D* h1_eta_MC = new TH1D("h1_eta_MC", "#eta_{MC}; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_RP = new TH1D("h1_eta_MC_RP", "#eta_{MC} in RP; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_B0 = new TH1D("h1_eta_MC_B0", "#eta_{MC} in B0; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_RecAssoc = new TH1D("h1_eta_RecAssoc", "#eta_{RecAssoc}; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_Rec = new TH1D("h1_eta_Rec", "#eta_{Rec}; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_Rec_RP = new TH1D("h1_eta_Rec_RP", "#eta_{Rec_RP}; #eta ; Counts/0.1 bin", 60, 4, 10);
 
   // Series of hists for efficiency plots
   TH1D* h1_Theta_pScRecMC = new TH1D("h1_Theta_MC_pScRec", "#theta_{MC}, p' Rec; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
   TH1D* h1_Theta_MC_pScRecRP = new TH1D("h1_Theta_MC_pScRecRP", "#theta_{MC}, p' in RP; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
   TH1D* h1_Theta_MC_pScRecB0 = new TH1D("h1_Theta_MC_pScRecB0", "#theta_{MC}, p' in B0; #theta (mrad); Counts/0.2 mrad bin", 125, 0, 25);
-  TH1D* h1_eta_MC_pScRec = new TH1D("h1_eta_MC_pScRec", "#eta_{MC}, p' Rec; #eta ; Counts/0.2 bin", 60, 4, 10);
-  TH1D* h1_eta_MC_pScRecRP = new TH1D("h1_eta_MC_pScRecRP", "#eta_{MC}, p' in RP; #eta ; Counts/0.2 bin", 60, 4, 10);
-  TH1D* h1_eta_MC_pScRecB0 = new TH1D("h1_eta_MC_pScRecB0", "#eta_{MC}, p' in B0; #eta ; Counts/0.2 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_pScRec = new TH1D("h1_eta_MC_pScRec", "#eta_{MC}, p' Rec; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_pScRecRP = new TH1D("h1_eta_MC_pScRecRP", "#eta_{MC}, p' in RP; #eta ; Counts/0.1 bin", 60, 4, 10);
+  TH1D* h1_eta_MC_pScRecB0 = new TH1D("h1_eta_MC_pScRecB0", "#eta_{MC}, p' in B0; #eta ; Counts/0.1 bin", 60, 4, 10);
   
   TTreeReaderArray<int>  MC_PID(tree_reader, "MCParticlesHeadOnFrameNoBeamFX.PDG");
   TTreeReaderArray<int>  MC_Status(tree_reader, "MCParticlesHeadOnFrameNoBeamFX.generatorStatus");
@@ -156,11 +156,11 @@ void Check_Assoc_List(TString InFile = ""){
   TH1D* h1_Eff_Theta_B0 = new TH1D("h1_Eff_Theta_B0", "Eff(#theta_{MC}), p' in B0; #theta_{MC} (mrad); Efficiency (%)",  125, 0, 25);
   h1_Eff_Theta_B0->Divide(h1_Theta_MC_pScRecB0, h1_Theta_MC, 1, 1, "b");
 
-  TH1D* h1_Eff_eta = new TH1D("h1_Eff_eta","Eff(#eta_{MC}); #eta_{MC} (mrad); Efficiency (%)", 60, 4, 10);
+  TH1D* h1_Eff_eta = new TH1D("h1_Eff_eta","Eff(#eta_{MC}); #eta_{MC}; Efficiency (%)", 60, 4, 10);
   h1_Eff_eta->Divide(h1_eta_MC_pScRec, h1_eta_MC, 1, 1, "b");
-  TH1D* h1_Eff_eta_RP = new TH1D("h1_Eff_eta_RP", "Eff(#eta_{MC}), p' in RP; #eta_{MC} (mrad); Efficiency (%)", 60, 4, 10);
+  TH1D* h1_Eff_eta_RP = new TH1D("h1_Eff_eta_RP", "Eff(#eta_{MC}), p' in RP; #eta_{MC}; Efficiency (%)", 60, 4, 10);
   h1_Eff_eta_RP->Divide(h1_eta_MC_pScRecRP, h1_eta_MC, 1, 1, "b");
-  TH1D* h1_Eff_eta_B0 = new TH1D("h1_Eff_eta_B0", "Eff(#eta_{MC}), p' in B0; #theta_{MC} (mrad); Efficiency (%)",  60, 4, 10);
+  TH1D* h1_Eff_eta_B0 = new TH1D("h1_Eff_eta_B0", "Eff(#eta_{MC}), p' in B0; #theta_{MC}; Efficiency (%)",  60, 4, 10);
   h1_Eff_eta_B0->Divide(h1_eta_MC_pScRecB0, h1_eta_MC, 1, 1, "b");
   
   TCanvas* c_Results;
