@@ -1177,8 +1177,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       //cout<<"[DEBUG] Reco. E-Pz (full evt., B0 proton) filled"<<endl;
 
       // B0 events
-      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0")){	
-	//if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size() == 0){	
+      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size() == 0){	
 	// Calculations
 	Float_t t_acc = calcT_BABE(beamp4,scatp4_aso[0]);
 	Float_t t_rec = calcT_BABE(beamp4,scatp4_rec[0]);
