@@ -347,7 +347,7 @@ void Check_Assoc_List(TString InFile = ""){
   c_Results2->Divide(3,2); 
   c_Results2->cd(1);
   h1_Theta_MC->SetLineColor(kBlack);
-  h1_Theta_MC->SetTitle("#theta_{MC} Comparison");
+  h1_Theta_MC->SetTitle("p' #theta_{MC} Comparison");
   h1_Theta_MC->Draw("HISTERR");
   h1_Theta_pScRecMC->SetLineColor(kP6Blue);
   h1_Theta_pScRecMC->Draw("SAMEHISTERR");
@@ -362,7 +362,7 @@ void Check_Assoc_List(TString InFile = ""){
   Leg_Comp2->AddEntry(h1_Theta_MC_pScRecB0, "MC Truth - Reconstructed p' in B0");
   c_Results2->cd(2);
   h1_eta_MC->SetLineColor(kBlack);
-  h1_eta_MC->SetTitle("#eta_{MC} Comparison");
+  h1_eta_MC->SetTitle("p' #eta_{MC} Comparison");
   h1_eta_MC->Draw("HISTERR");
   h1_eta_MC_pScRec->SetLineColor(kP6Blue);
   h1_eta_MC_pScRec->Draw("SAMEHISTERR");
@@ -411,7 +411,7 @@ void Check_Assoc_List(TString InFile = ""){
   c_Results4->Divide(3,2); 
   c_Results4->cd(1);
   h1_Theta_MC->SetLineColor(kBlack);
-  h1_Theta_MC->SetTitle("#theta_{MC} Comparison, e' and #gamma matched");
+  h1_Theta_MC->SetTitle("p' #theta_{MC} Comparison, e' and #gamma matched");
   h1_Theta_MC->Draw("HISTER");
   h1_Theta_pScRec_Coin_MC->SetLineColor(kP6Blue);
   h1_Theta_pScRec_Coin_MC->Draw("SAMEHISTERR");
@@ -426,7 +426,7 @@ void Check_Assoc_List(TString InFile = ""){
   Leg_Comp6->AddEntry(h1_Theta_pScRec_B0_Coin_MC, "MC Truth - Reconstructed p' in B0, e' and #gamma matched");
   c_Results4->cd(2);
   h1_eta_MC->SetLineColor(kBlack);
-  h1_eta_MC->SetTitle("#eta_{MC} Comparison, e' and #gamma matched");
+  h1_eta_MC->SetTitle("p' #eta_{MC} Comparison, e' and #gamma matched");
   h1_eta_MC->Draw("HISTER");
   h1_eta_pScRec_Coin_MC->SetLineColor(kP6Blue);
   h1_eta_pScRec_Coin_MC->Draw("SAMEHISTERR");
@@ -441,7 +441,7 @@ void Check_Assoc_List(TString InFile = ""){
   h1_Eff_Theta_pSc_Coin->SetLineColor(kP6Blue);
   h1_Eff_Theta_pSc_Coin->Sumw2();
   h1_Eff_Theta_pSc_Coin->Scale(100);
-  h1_Eff_Theta_pSc_Coin->SetTitle("Eff(#theta_{MC}), e' and #gamma matched");
+  h1_Eff_Theta_pSc_Coin->SetTitle("p' Eff(#theta_{MC}), e' and #gamma matched");
   h1_Eff_Theta_pSc_Coin->Draw("HISTERR");
   h1_Eff_Theta_pSc_RP_Coin->SetLineColor(kP6Yellow);  
   h1_Eff_Theta_pSc_RP_Coin->Sumw2();
