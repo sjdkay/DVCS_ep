@@ -57,30 +57,30 @@ void Process_Sim_Output(TString InFile = ""){
       if(binq2 == 0 && binxB == 0){ //First bin only
 	Leg_tComp->AddEntry(tmpHist1D, "t_{MC_Accepted}");
       }
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Red);
-      if(binq2 == 0 && binxB == 0){ //First bin only
-	Leg_tComp->AddEntry(tmpHist1D, "t_{MethodL}");
-      }
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_True[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Blue);
-      if(binq2 == 0 && binxB == 0){ //First bin only
-	Leg_tComp->AddEntry(tmpHist1D, "t_{B0}");
-      }
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tRP_Q2xB_True[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Yellow);
-      if(binq2 == 0 && binxB == 0){ //First bin only
-	Leg_tComp->AddEntry(tmpHist1D, "t_{RP}");
-      }
-      tmpHist1D->Draw("SAMEHISTERR");
-      gPad->SetLogy(1);
-    }
+    //   tmpHist1D->Draw("SAMEHISTERR");
+    //   tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB))));
+    //   tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+    //   tmpHist1D->SetLineColor(kP6Red);
+    //   if(binq2 == 0 && binxB == 0){ //First bin only
+    // 	Leg_tComp->AddEntry(tmpHist1D, "t_{MethodL}");
+    //   }
+    //   tmpHist1D->Draw("SAMEHISTERR");
+    //   tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_True[%i][%i]",binq2,binxB))));
+    //   tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+    //   tmpHist1D->SetLineColor(kP6Blue);
+    //   if(binq2 == 0 && binxB == 0){ //First bin only
+    // 	Leg_tComp->AddEntry(tmpHist1D, "t_{B0}");
+    //   }
+    //   tmpHist1D->Draw("SAMEHISTERR");
+    //   tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tRP_Q2xB_True[%i][%i]",binq2,binxB))));
+    //   tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+    //   tmpHist1D->SetLineColor(kP6Yellow);
+    //   if(binq2 == 0 && binxB == 0){ //First bin only
+    // 	Leg_tComp->AddEntry(tmpHist1D, "t_{RP}");
+    //   }
+    //   tmpHist1D->Draw("SAMEHISTERR");
+    //   gPad->SetLogy(1);
+    // }
     c_Q2xB_Results[binq2]->cd(12);
     Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
     Q2_Range_Text[binq2]->Draw();
@@ -96,49 +96,49 @@ void Process_Sim_Output(TString InFile = ""){
     }
   }
 
-  TCanvas* c_Q2xB_Results2[9];
-  TString OutPdf2 = Form("%s_RecQ2xB_Binned_tDists_Rec.pdf", InFile.Data());
-  for(int binq2{0}; binq2<nQ2bins; binq2++){
-    c_Q2xB_Results2[binq2] = new TCanvas(Form("c_Q2xB_Results2_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
-    c_Q2xB_Results2[binq2]->Divide(4,3); 
-    for(int binxB{0}; binxB<nxBbins; binxB++){
-      c_Q2xB_Results2[binq2]->cd(binxB+1);
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMC_Q2xB_True[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Gray);
-      tmpHist1D->Draw("HISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMCAcc_Q2xB_Rec[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Violet);
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_Rec[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Red);
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_Rec[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Blue);
-      tmpHist1D->Draw("SAMEHISTERR");
-      tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tRP_Q2xB_Rec[%i][%i]",binq2,binxB))));
-      tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Yellow);
-      tmpHist1D->Draw("SAMEHISTERR");
-      gPad->SetLogy(1);
-    }
-    c_Q2xB_Results2[binq2]->cd(12);
-    Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
-    Q2_Range_Text[binq2]->Draw();
-    Leg_tComp->Draw("SAME");
-    if(binq2 == 0){
-      c_Q2xB_Results2[binq2]->Print(OutPdf2 + "(");
-    }
-    else if(binq2 == 7){
-      c_Q2xB_Results2[binq2]->Print(OutPdf2 + ")");
-    }
-    else{
-      c_Q2xB_Results2[binq2]->Print(OutPdf2);
-    }
-  }
+  // TCanvas* c_Q2xB_Results2[9];
+  // TString OutPdf2 = Form("%s_RecQ2xB_Binned_tDists_Rec.pdf", InFile.Data());
+  // for(int binq2{0}; binq2<nQ2bins; binq2++){
+  //   c_Q2xB_Results2[binq2] = new TCanvas(Form("c_Q2xB_Results2_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+  //   c_Q2xB_Results2[binq2]->Divide(4,3); 
+  //   for(int binxB{0}; binxB<nxBbins; binxB++){
+  //     c_Q2xB_Results2[binq2]->cd(binxB+1);
+  //     tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMC_Q2xB_True[%i][%i]",binq2,binxB))));
+  //     tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     tmpHist1D->SetLineColor(kP6Gray);
+  //     tmpHist1D->Draw("HISTERR");
+  //     tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMCAcc_Q2xB_Rec[%i][%i]",binq2,binxB))));
+  //     tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     tmpHist1D->SetLineColor(kP6Violet);
+  //     tmpHist1D->Draw("SAMEHISTERR");
+  //     tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_Rec[%i][%i]",binq2,binxB))));
+  //     tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     tmpHist1D->SetLineColor(kP6Red);
+  //     tmpHist1D->Draw("SAMEHISTERR");
+  //     tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tB0_Q2xB_Rec[%i][%i]",binq2,binxB))));
+  //     tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     tmpHist1D->SetLineColor(kP6Blue);
+  //     tmpHist1D->Draw("SAMEHISTERR");
+  //     tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tRP_Q2xB_Rec[%i][%i]",binq2,binxB))));
+  //     tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     tmpHist1D->SetLineColor(kP6Yellow);
+  //     tmpHist1D->Draw("SAMEHISTERR");
+  //     gPad->SetLogy(1);
+  //   }
+  //   c_Q2xB_Results2[binq2]->cd(12);
+  //   Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
+  //   Q2_Range_Text[binq2]->Draw();
+  //   Leg_tComp->Draw("SAME");
+  //   if(binq2 == 0){
+  //     c_Q2xB_Results2[binq2]->Print(OutPdf2 + "(");
+  //   }
+  //   else if(binq2 == 7){
+  //     c_Q2xB_Results2[binq2]->Print(OutPdf2 + ")");
+  //   }
+  //   else{
+  //     c_Q2xB_Results2[binq2]->Print(OutPdf2);
+  //   }
+  // }
 
   TCanvas* c_tRes_Results =  new TCanvas("c_tResResults", "t Resolutions", 100, 0, 2560, 1920);
   TString OutPdf3 = Form("%s_tRes_Results.pdf", InFile.Data());
