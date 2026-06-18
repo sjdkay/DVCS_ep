@@ -113,43 +113,43 @@ void ePIC_DVCS_TASK::setMomCutFactors(Float_t factore = 1.,Float_t factorp = 1. 
 
 // Single particle cuts - electron
 Bool_t ePIC_DVCS_TASK::applyCuts_Electron(P3EVector beame, std::vector<P3EVector> scate){
-   Bool_t passCuts{kTRUE};
+  Bool_t passCuts{kTRUE};
    
-   // EVENT CUTS
-   // Require single particle in final state
-   if(scate.size() != 1) passCuts = kFALSE;
-   //if(scate.size() == 0) passCuts = kFALSE;
-   // Return out of function if array is not filled
-   if(!passCuts) return passCuts;
+  // EVENT CUTS
+  // Require single particle in final state
+  if(scate.size() != 1) passCuts = kFALSE;
+  //if(scate.size() == 0) passCuts = kFALSE;
+  // Return out of function if array is not filled
+  if(!passCuts) return passCuts;
 
-   // KINEMATIC CUTS
-   // 1. Momentum
-   if(scate[0].P() > (fPBeam_e*fPMaxFactor_e)) passCuts = kFALSE;
-   // 2. Q2
-   fQ2 = calcQ2_Elec(beame, scate[0]);
-   if(fQ2 < fMinQ2) passCuts = kFALSE;
+  // KINEMATIC CUTS
+  // 1. Momentum
+  if(scate[0].P() > (fPBeam_e*fPMaxFactor_e)) passCuts = kFALSE;
+  // 2. Q2
+  fQ2 = calcQ2_Elec(beame, scate[0]);
+  if(fQ2 < fMinQ2) passCuts = kFALSE;
 
-   return passCuts;
+  return passCuts;
 }
 
 // Single particle cuts - photon
 Bool_t ePIC_DVCS_TASK::applyCuts_Photon(std::vector<P3EVector> scatg){
-   Bool_t passCuts{kTRUE};
+  Bool_t passCuts{kTRUE};
    
-   // EVENT CUTS
-   // Require single particle in final state
-   if(scatg.size() != 1) passCuts = kFALSE;
-   //if(scatg.size() == 0) passCuts = kFALSE;
-   // Return out of function if array is not filled
-   if(!passCuts) return passCuts;
+  // EVENT CUTS
+  // Require single particle in final state
+  if(scatg.size() != 1) passCuts = kFALSE;
+  //if(scatg.size() == 0) passCuts = kFALSE;
+  // Return out of function if array is not filled
+  if(!passCuts) return passCuts;
 
-   //----------------------------------
-   // INSERT ANY OTHER PHOTON CUTS HERE
-   //----------------------------------
+  //----------------------------------
+  // INSERT ANY OTHER PHOTON CUTS HERE
+  //----------------------------------
 
-   //if(scatg[0].Eta() < 1.4 || scatg[0].Eta() > 3.0) passCuts = kFALSE;
+  //if(scatg[0].Eta() < 1.4 || scatg[0].Eta() > 3.0) passCuts = kFALSE;
 
-   return passCuts;
+  return passCuts;
 }
 
 // Single particle cuts - proton
@@ -194,7 +194,7 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Proton(std::vector<P3EVector> scatp, TString sP
   if(sProtonDet == "B0"){
     fMinPTheta = 0.0055;
     fMaxPTheta = 0.02;
- }
+  }
   // RP angluar acceptance: < 5.0 mrad
   else if(sProtonDet == "RP"){
     fMinPTheta = 0.;
@@ -446,7 +446,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
   string fileName;
   TFile* inputRootFile;
 
-    int NumFiles = 0;  
+  int NumFiles = 0;  
   // Determine number of files in file list
   while(getline(fileListStream,fileName)){
     NumFiles++;
@@ -595,20 +595,20 @@ void ePIC_DVCS_TASK::doAnalysis(){
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       h1_tMC_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMC_Q2xB_True[%i][%i]",binq2,binxB),
-					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
-						q2edges[binq2],q2edges[binq2+1],
-						xBedges[binxB],xBedges[binxB+1]),
-					   16, 0., 1.6);
+						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MC}| [GeV^{2}];",
+						     q2edges[binq2],q2edges[binq2+1],
+						     xBedges[binxB],xBedges[binxB+1]),
+						16, 0., 1.6);
       h1_tMCAcc_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB),
-					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
-						q2edges[binq2],q2edges[binq2+1],
-						xBedges[binxB],xBedges[binxB+1]),
-					   16, 0., 1.6);
+						   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
+							q2edges[binq2],q2edges[binq2+1],
+							xBedges[binxB],xBedges[binxB+1]),
+						   16, 0., 1.6);
       h1_t_Q2xB_Eff[binq2][binxB] = new TH1D(Form("h1_t_Q2xB_Eff[%i][%i]",binq2,binxB),
-					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}]; Efficiency",
-						q2edges[binq2],q2edges[binq2+1],
-						xBedges[binxB],xBedges[binxB+1]),
-					   16, 0., 1.6);
+					     Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}]; Efficiency",
+						  q2edges[binq2],q2edges[binq2+1],
+						  xBedges[binxB],xBedges[binxB+1]),
+					     16, 0., 1.6);
       // h1_tB0_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tB0_Q2xB_True[%i][%i]",binq2,binxB),
       // 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{B0}| [GeV^{2}];",
       // 						q2edges[binq2],q2edges[binq2+1],
@@ -702,11 +702,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 							 10, 0, 6.3);
 
 	/*h_TPhiResDiff_B0[binq2][binxB][bint] = new TH1D(Form("tphi_rpreco[%i][%i][%i]",binq2,binxB,bint), 
-							 Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|%.2f;#phi_{h}(Reco) [rad];",
-							      q2edges[binq2],q2edges[binq2+1],
-							      xBedges[binxB],xBedges[binxB+1],
-							      tedges[bint],tedges[bint+1]), 
-							      10, 0, 6.3);*/
+	  Form("%.2e<Q^{2}<%.2e GeV^{2}, %.2e<x_{B}<%.2e, %.2f<|t|%.2f;#phi_{h}(Reco) [rad];",
+	  q2edges[binq2],q2edges[binq2+1],
+	  xBedges[binxB],xBedges[binxB+1],
+	  tedges[bint],tedges[bint+1]), 
+	  10, 0, 6.3);*/
 
       } // End of t bin loop
     }// End of xB bin loop
@@ -1578,7 +1578,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 applyCuts_Proton(scatp4_rom, "RP")      ) h_M2miss3_RP->Fill(calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_rom[0], scatg4_rec[0]));
 
     } // END OF EVENT LOOP - MAIN LOOP
-
+    cout << Finished processing file << endl;
     fileCounter++;
   } // END OF FILE LIST
   
@@ -1715,3 +1715,4 @@ void ePIC_DVCS_TASK::doAnalysis(){
   
   return;
 }
+
