@@ -1164,7 +1164,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all")){
 	// Calculations
-	Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
+	//Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
 	Float_t tphi_gen = calcTrentoPhi_qg(beame4, beamp4, scate4_gen[0], scatg4_gen[0]);
 	// Distributions - Q2/xB integrated
 	h_t_Truth->Fill(t_gen);
@@ -1172,7 +1172,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	// Q2/xB diff.
 	// Need Q2 and xB for events
-	Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
 	Float_t q2_gen = calcQ2_Elec(beame4, scate4_gen[0]);
 	Float_t xB_gen = calcX_Elec(beame4, beamp4, scate4_gen[0]);
 	
@@ -1449,7 +1448,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       
       // Mandelstam t-resolution
       // ASSUME THAT GENERATED POSITIVE TRACK MATCHES RECONSTRUCTED POSITIVE TRACK
-      Float_t t_rec{0}, t_gen{0};
+      Float_t t_rec{0};//, t_gen{0};
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all") 
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size()==0){
 	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
