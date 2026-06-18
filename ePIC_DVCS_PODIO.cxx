@@ -1451,7 +1451,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       Float_t t_rec{0};//, t_gen{0};
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all") 
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "B0") && scatp4_rom.size()==0){
-	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
+	//t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rec[0]);
 	h2_tResB0->Fill(t_gen, (t_rec-t_gen));
 	h2_tResB0Pct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
@@ -1463,7 +1463,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       }
       if(applyCuts_All(beame4, beamp4, scate4_gen, scatp4_gen, scatg4_gen, "all") 
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rom, scatg4_rec, "RP") && scatp4_rec.size()==0){
-	t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
+	//t_gen = calcT_BABE(beamp4, scatp4_gen[0]);
 	t_rec = calcT_BABE(beamp4, scatp4_rom[0]);
 	h2_tResRP->Fill(t_gen, (t_rec-t_gen));
 	h2_tResRPPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
@@ -1477,7 +1477,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 && applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "semi")){
 	 // applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec)
 	 //&& applyCuts_Electron(beame4,scate4_gen) && applyCuts_Photon(scatg4_gen)){
-	t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
+	//t_gen = calcT_MethodL(beame4,beamp4,scate4_gen[0],fMass_proton,scatg4_gen[0]);
 	t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);
 	h2_tResLC->Fill(t_gen, (t_rec-t_gen));
 	h2_tResLCPct->Fill(t_gen, ((t_rec-t_gen)/t_gen)*100);
