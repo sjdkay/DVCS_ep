@@ -828,6 +828,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	} // fi (mcp.getGeneratorStatus() == 1)
       } // END OF MCPARTICLES LOOP
 
+      if(scatp4_gen.size()==0 || scate4_gen.size()==0 || scatg4_gen.size()==0){ // Added to catch strange corner case where MC particles don't have a DVCS event 
+        cout << " Particle not found in event, skipping!" << endl;
+        continue; 
+      } 
+
       // Calculate true t/Q2/xB values, fill MC truth t dists for each Q2/xB bin
       Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
       Float_t q2_gen = calcQ2_Elec(beame4, scate4_gen[0]);
