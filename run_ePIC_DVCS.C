@@ -58,11 +58,11 @@ void run_ePIC_DVCS(TString camp="Camp", TString energy="10x100", TString sett="t
   Float_t tRPmax = 2*(TMath::Power(fMass_proton,2) - momDot);
 
   // Set DVCS cut values
-  objDVCS->setMomCutFactors(10.,10.);
+  objDVCS->setMomCutFactors(1.1,1.1);
   objDVCS->setMin_Q2(1); // GeV^2
   //objDVCS->setMax_tRP(TMath::Abs(tRPmax)*1.25);  // GeV^2
   objDVCS->setMax_tRP(2);  // GeV^2
-  objDVCS->setMax_M2miss(1);                     // GeV^2
+  objDVCS->setMax_M2miss(50);                     // GeV^2
   //objDVCS->setMax_M2miss(99999);                 // GeV^2 - effective no cut
   objDVCS->setEmPzCuts(15.,25.);
 

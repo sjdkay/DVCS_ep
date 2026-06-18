@@ -48,7 +48,6 @@ ePIC_DVCS_TASK::ePIC_DVCS_TASK(TString camp, TString energy, TString sett){
   setBeamMomenta();
 }
 
-
 //----------------------------------------------------
 //----------------------------------------------------
 //                    SETTERS
@@ -195,7 +194,7 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Proton(std::vector<P3EVector> scatp, TString sP
   if(sProtonDet == "B0"){
     fMinPTheta = 0.0055;
     fMaxPTheta = 0.02;
-  }
+ }
   // RP angluar acceptance: < 5.0 mrad
   else if(sProtonDet == "RP"){
     fMinPTheta = 0.;
@@ -205,9 +204,9 @@ Bool_t ePIC_DVCS_TASK::applyCuts_Proton(std::vector<P3EVector> scatp, TString sP
   else if(sProtonDet == "all"){
     fMinPTheta = 0.;
     fMaxPTheta = 0.02;
-  } 
+  }
   if(scatp[0].Theta()<fMinPTheta || scatp[0].Theta()>fMaxPTheta) passCuts = kFALSE;
-
+  
   // 3. Longitudinal momentum
   //if(scatp[0].Z() < 0.98*beamP) passCuts = kFALSE;
 
@@ -229,7 +228,8 @@ Bool_t ePIC_DVCS_TASK::applyCuts_DVCS(TString sProtonDet="all"){
   //if(TMath::Log10(fxB) < fxB_Tail) passCuts = kFALSE;
   
   // 3. MAXIMUM MISSING MASS^2
-  if(TMath::Abs(fM2miss) > fMax_M2miss) passCuts = kFALSE;
+  // SJDK - Comment out MM cut, not really suitable for collider events - For DIS, might make it look like large BG contamination, but can add in vertex DOCA cuts, timing etc later too
+  //if(TMath::Abs(fM2miss) > fMax_M2miss) passCuts = kFALSE;
 
   return passCuts;
 }
@@ -574,8 +574,12 @@ void ePIC_DVCS_TASK::doAnalysis(){
   TH1D* h_TPhiDiff_B0Reco[nQ2bins][nxBbins][ntbins];
   TH1D* h_TPhiDiff_RPReco[nQ2bins][nxBbins][ntbins];
 
+  // These are used for new "result" output
   TH1D* h1_tMC_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC, true Q2/xB values
   TH1D* h1_tMCAcc_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC for accepted events, true Q2/xB values
+  TH1D* h1_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco
+  
+  // Other histograms of interest
   TH1D* h1_tB0_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, true Q2/xB values
   TH1D* h1_tRP_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from RP, true Q2/xB values
   TH1D* h1_tMethL_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from "corrected" method, true Q2/xB values
@@ -597,6 +601,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
 					   16, 0., 1.6);
       h1_tMCAcc_Q2xB_True[binq2][binxB] = new TH1D(Form("h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB),
 					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}];",
+						q2edges[binq2],q2edges[binq2+1],
+						xBedges[binxB],xBedges[binxB+1]),
+					   16, 0., 1.6);
+      h1_t_Q2xB_Eff[binq2][binxB] = new TH1D(Form("h1_t_Q2xB_Eff[%i][%i]",binq2,binxB),
+					   Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}]; Efficiency",
 						q2edges[binq2],q2edges[binq2+1],
 						xBedges[binxB],xBedges[binxB+1]),
 					   16, 0., 1.6);
@@ -702,7 +711,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
       } // End of t bin loop
     }// End of xB bin loop
   } // End of Q2 bin loop
-
+  
   //---------------------------------------------------------
   // Loop over files in list
   //---------------------------------------------------------
@@ -819,6 +828,35 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	} // fi (mcp.getGeneratorStatus() == 1)
       } // END OF MCPARTICLES LOOP
 
+      // Calculate true t/Q2/xB values, fill MC truth t dists for each Q2/xB bin
+      Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
+      Float_t q2_gen = calcQ2_Elec(beame4, scate4_gen[0]);
+      Float_t xB_gen = calcX_Elec(beame4, beamp4, scate4_gen[0]);
+
+      // Find global bin numbers
+      int binq2{-1}, binxB{-1}, bint{-1};
+      for(int q{0}; q<nQ2bins; q++){
+	if(q2_gen >= q2edges[q] && q2_gen < q2edges[q+1]){
+	  binq2 = q;
+	  break;
+	}
+      }
+      for(int x{0}; x<nxBbins; x++){
+	if(xB_gen >= xBedges[x] && xB_gen < xBedges[x+1]){
+	  binxB = x;
+	  break;
+	}
+      }
+      for(int t{0}; t<ntbins; t++){
+	if(t_gen >= tedges[t] && t_gen < tedges[t+1]){
+	  bint = t;
+	  break;
+	}
+      }
+      if((binq2!=-1) && (binxB!=-1)){
+	h1_tMC_Q2xB_True[binq2][binxB]->Fill(t_gen);
+      }
+      
       // Reconstructed and associated particles (electrons/photons)
       const auto& assocReco = event.get<edm4eic::MCRecoParticleAssociationCollection>("ReconstructedParticleAssociations");
       for(const auto& mcreco : assocReco){
@@ -1045,8 +1083,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	h_eta_MCp->Fill(scatp4_gen[0].Eta());
 	h_2D_EvEta_p->Fill(scatp4_gen[0].Eta(), scatp4_gen[0].E());
       }
-
-      
       
       // For cut histogram - don't apply proton theta cut
       if(scatp4_gen.size() == 1){
@@ -1136,44 +1172,24 @@ void ePIC_DVCS_TASK::doAnalysis(){
 
 	// Q2/xB diff.
 	// Need Q2 and xB for events
+	Float_t t_gen = calcT_BABE(beamp4,scatp4_gen[0]);
 	Float_t q2_gen = calcQ2_Elec(beame4, scate4_gen[0]);
 	Float_t xB_gen = calcX_Elec(beame4, beamp4, scate4_gen[0]);
 	
-	// Find global bin numbers
-	int binq2{-1}, binxB{-1}, bint{-1};
-	for(int q{0}; q<nQ2bins; q++){
-	  if(q2_gen >= q2edges[q] && q2_gen < q2edges[q+1]){
-	    binq2 = q;
-	    break;
-	  }
-	}
-	for(int x{0}; x<nxBbins; x++){
-	  if(xB_gen >= xBedges[x] && xB_gen < xBedges[x+1]){
-	    binxB = x;
-	    break;
-	  }
-	}
-	for(int t{0}; t<ntbins; t++){
-	  if(t_gen >= tedges[t] && t_gen < tedges[t+1]){
-	    bint = t;
-	    break;
-	  }
-	}
-	if((binq2!=-1) && (binxB!=-1)){
-	  h1_tMC_Q2xB_True[binq2][binxB]->Fill(t_gen);
-	}
-
 	if((binq2!=-1) && (binxB!=-1) && (bint!=-1)) h_TPhiDiff_MC[binq2][binxB][bint]->Fill(tphi_gen);
       }
       
       //cout<<"[DEBUG] MC TPhi filled"<<endl;
- 
+      // if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec) && applyCuts_Proton(scatp4_rec, "B0") && scatp4_rom.size() == 0){
+      // 	cout << beame4.E() << "e   p" <<  beamp4.E()  << "   e'" << scate4_gen[0].E() << "   p'" << scatp4_rec[0].E() << "   g" <<  scatg4_rec[0].E() << endl;
+      // }
+      
       // Reconstructed and MC accepted - B0 only
       if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec) && applyCuts_Proton(scatp4_rec, "B0") 
 	 && scatp4_rom.size() == 0 
 	 && TMath::Abs(calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_rec[0], scatg4_rec[0])) < fMax_M2miss)
 	 h_EmPz3_RP->Fill((scate4_rec[0]+scatp4_rec[0]+scatg4_rec[0]).E() - (scate4_rec[0]+scatp4_rec[0]+scatg4_rec[0]).Pz());
-
+      
       //cout<<"[DEBUG] Reco. E-Pz (full evt., B0 proton) filled"<<endl;
 
       // B0 events

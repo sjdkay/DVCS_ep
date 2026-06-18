@@ -3,3 +3,6 @@ Output/*
 *.root
 *.hepmc3
 *.pdf
+*.odp
+*.ods
+#*
