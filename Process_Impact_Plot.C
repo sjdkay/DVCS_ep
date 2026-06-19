@@ -142,13 +142,15 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
   
   // Get bin by bin efficiencies and scale bins of histograms
   TFile *SimFile =  new TFile(InSimOutputFile);
-  double tmp_content;
+  double tmp_content, tmp_error;
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
       for(int i = 1; i <= h1_tResult_Q2xB[binq2][binxB]->GetNbinsX(); ++i){
 	tmp_content = h1_tResult_Q2xB[binq2][binxB]->GetBinContent(i);
-	h1_tResult_Q2xB[binq2][binxB]->SetBinContent(i, tmp_content * tmpHist1D->GetBinContent(i)); // Scale existing bin content by efficiency 
+	//tmp_error = h1_tResult_Q2xB[binq2][binxB]->GetBinError(i);
+	h1_tResult_Q2xB[binq2][binxB]->SetBinContent(i, tmp_content * tmpHist1D->GetBinContent(i)); // Scale existing bin content by efficiency
+	//h1_tResult_Q2xB[binq2][binxB]->SetBinError(i, tmp_error * tmpHist1D->GetBinError(i)); // Scale existing bin content by efficiency
       }
     }
   }

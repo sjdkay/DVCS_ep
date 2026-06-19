@@ -579,7 +579,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
   // These are used for new "result" output
   TH1D* h1_tMC_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC, true Q2/xB values
   TH1D* h1_tMCAcc_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC for accepted events, true Q2/xB values
-  TH1D* h1_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco
+  TEfficiency* h1DEff_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco
   
   // Other histograms of interest
   // TH1D* h1_tB0_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, true Q2/xB values
@@ -606,7 +606,7 @@ void ePIC_DVCS_TASK::doAnalysis(){
 							q2edges[binq2],q2edges[binq2+1],
 							xBedges[binxB],xBedges[binxB+1]),
 						   16, 0., 1.6);
-      h1_t_Q2xB_Eff[binq2][binxB] = new TH1D(Form("h1_t_Q2xB_Eff[%i][%i]",binq2,binxB),
+      h1DEff_t_Q2xB_Eff[binq2][binxB] = new TEfficiency(Form("h1DEff_t_Q2xB_Eff[%i][%i]",binq2,binxB),
 					     Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t_{MCAcc}| [GeV^{2}]; Efficiency",
 						  q2edges[binq2],q2edges[binq2+1],
 						  xBedges[binxB],xBedges[binxB+1]),
@@ -1695,8 +1695,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
     for(int x{0}; x<nxBbins; x++){
       h1_tMC_Q2xB_True[q][x]->Write();
       h1_tMCAcc_Q2xB_True[q][x]->Write();
-      h1_t_Q2xB_Eff[q][x]->Divide(h1_tMCAcc_Q2xB_True[q][x], h1_tMC_Q2xB_True[q][x], 1, 1, "b"); // Calculate efficiency plot
-      h1_t_Q2xB_Eff[q][x]->Write();
+      //h1_t_Q2xB_Eff[q][x]->Divide(h1_tMCAcc_Q2xB_True[q][x], h1_tMC_Q2xB_True[q][x], 1, 1, "b"); // Calculate efficiency plot
+      h1DEff_t_Q2xB_Eff[q][x]->SetTotalHistogram("h1_tMC_Q2xB_True[q][x]");
+      h1DEff_t_Q2xB_Eff[q][x]->SetPassedHistogram("h1_tMCAcc_Q2xB_True[q][x]");
+      h1DEff_t_Q2xB_Eff[q][x]->Write();
       // h1_tB0_Q2xB_True[q][x]->Write();
       // h1_tRP_Q2xB_True[q][x]->Write();
       // h1_tMethL_Q2xB_True[q][x]->Write();
