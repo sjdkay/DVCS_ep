@@ -11,6 +11,8 @@ using ROOT::Math::VectorUtil::boost;
 #include "ePICStyle.C"
 #include <vector>
 
+TH1::SetDefaultSumw2(kTRUE);
+
 void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
 
   if(CheckFile_Gen(InGenFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
@@ -35,6 +37,8 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
   TH2D* tmpHist2D;
   // Integrated lumi (in fb-1) of the generated file
   double IntLumiGen = 0.12; //  What matters is the int lumi in the processed HepMC3 file
+  TDatime d;
+  TFile *ofile = TFile::Open(Form("9x130_ImpactPlots_%d_0%d_%d.root", d.GetDay(), d.GetMonth(), d.GetYear()) ,"RECREATE");
 
   // Open generator level file and get xB/Q2/t for each event, fill relevant histogram
   TH1D* h1_tGen_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
@@ -46,12 +50,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
 						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t| [GeV^{2}];",
 						     q2edges[binq2],q2edges[binq2+1],
 						     xBedges[binxB],xBedges[binxB+1]),
-						20, 0., 2.);
-      	h1_tResult_Q2xB[binq2][binxB] = new TH1D(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB),
-						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t| [GeV^{2}];",
-						     q2edges[binq2],q2edges[binq2+1],
-						     xBedges[binxB],xBedges[binxB+1]),
-						20, 0., 2.);
+						16, 0., 1.6);
     }// End of xB bin loop
   } // End of Q2 bin loop
 
@@ -131,5 +130,57 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
       }
     } // End Q2 binning loop
   } // End event loop
+
+  // Scale by integrated lumi
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      h1_tResult_Q2xB[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB));
+      h1_tResult_Q2xB[binq2][binxB]->Scale(1/IntLumiGen);
+      h1_tGen_Q2xB[binq2][binxB]->Scale(1/IntLumiGen); // For comparison later
+    }
+  }
+  
+  // Get bin by bin efficiencies and scale bins of histograms
+  TFile *SimFile =  new TFile(InSimOutputFile);
+  double tmp_content;
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
+      for(int i = 1; i <= h1_tResult_Q2xB[binq2][binxB]->GetNbinsX(); ++i){
+	tmp_content = h1_tResult_Q2xB[binq2][binxB]->GetBinContent(i);
+	h1_tResult_Q2xB[binq2][binxB]->SetBinContent(i, tmp_content * tmpHist1D->GetBinContent(i)); // Scale existing bin content by efficiency 
+      }
+    }
+  }
+  
+  // TCanvas* c_Q2xB_Results[9];
+  // TLatex *Q2_Range_Text[9];
+  // TString OutPdf = Form(Form("9x130_ImpactPlots_%d_0%d_%d.pdf", d.GetDay(), d.GetMonth(), d.GetYear()));
+  // for(int binq2{0}; binq2<nQ2bins; binq2++){
+  //   c_Q2xB_Results[binq2] = new TCanvas(Form("c_Q2xB_Results_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+  //   c_Q2xB_Results[binq2]->Divide(4,3); 
+  //   for(int binxB{0}; binxB<nxBbins; binxB++){
+  //     c_Q2xB_Results[binq2]->cd(binxB+1);
+  //     h1_tDiff_v2[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+  //     h1_tDiff_v2[binq2][binxB]->Draw("HISTERR");
+  //     gPad->SetLogy(1);
+  //   }
+  //   c_Q2xB_Results[binq2]->cd(12);
+  //   Q2_Range_Text[binq2] = new TLatex(0.2, 0.5, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
+  //   Q2_Range_Text[binq2]->Draw();
+  //   if(binq2 == 0){
+  //     c_Q2xB_Results[binq2]->Print(OutPdf + "(");
+  //   }
+  //   else if(binq2 == 7){
+  //     c_Q2xB_Results[binq2]->Print(OutPdf + ")");
+  //   }
+  //   else{
+  //     c_Q2xB_Results[binq2]->Print(OutPdf);
+  //   }
+  // }
+  
+  ofile->Write(); // Write histograms to file
+  ofile->Close(); // Close output file
+
   
 }

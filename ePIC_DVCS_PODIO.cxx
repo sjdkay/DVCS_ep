@@ -28,6 +28,8 @@
 // Class header include
 #include "ePIC_DVCS_TASK.h"
 
+TH1::SetDefaultSumw2(kTRUE);
+
 //----------------------------------------------------
 //----------------------------------------------------
 //                    CONSTRUCTORS
