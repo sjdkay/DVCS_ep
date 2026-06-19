@@ -43,7 +43,8 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
 
   // Open generator level file and get xB/Q2/t for each event, fill relevant histogram
   TH1D* h1_tGen_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
-  TH1D* h1_tResult_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
+  TH1D* h1_tResult_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TEfficiency method
+  TH1D* h1_tResult_Q2xB_v2[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TH1 method
 
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
@@ -137,6 +138,8 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       h1_tResult_Q2xB[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB));
       h1_tResult_Q2xB[binq2][binxB]->Scale(1/IntLumiGen);
+      h1_tResult_Q2xB_v2[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB));
+      h1_tResult_Q2xB_v2[binq2][binxB]->Scale(1/IntLumiGen);
       h1_tGen_Q2xB[binq2][binxB]->Scale(1/IntLumiGen); // For comparison later
     }
   }
@@ -146,20 +149,37 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
   double tmp_content, tmp_error, tmp_EffVal, tmp_EffErr;
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
-      tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
+      tmpEff = (TEfficiency*)(((TEfficiency*)SimFile->Get(Form("Q2xB_Binned_Dists/h1DEff_t_Q2xB_Eff[%i][%i]", binq2, binxB))));
       for(int i = 1; i <= h1_tResult_Q2xB[binq2][binxB]->GetNbinsX(); ++i){
 	// Get initial values of bin and error
 	tmp_content = h1_tResult_Q2xB[binq2][binxB]->GetBinContent(i);
 	tmp_error = h1_tResult_Q2xB[binq2][binxB]->GetBinError(i);
 	//Get corresponding efficiency value to scale by
-	tmpEff = (TEfficiency*)(((TEfficiency*)SimFile->Get(Form("Q2xB_Binned_Dists/h1DEff_t_Q2xB_Eff[%i][%i]", binq2, binxB))));
 	tmp_EffVal = tmpEff->GetEfficiency(i);
 	// Take the average of the upper/lower efficiency error bars - symmetric error propagation
 	tmp_EffErr =(tmpEff->GetEfficiencyErrorUp(i) + tmpEff->GetEfficiencyErrorLow(i))/2;
 	// Set content and error
 	h1_tResult_Q2xB[binq2][binxB]->SetBinContent(i, tmp_content * tmp_EffVal);
-	h1_tResult_Q2xB[binq2][binxB]->SetBinError(i, TMath::Sqrt(TMath::Power(tmp_error * tmp_EffVal, 2) + TMath::Power(tmp_EffErr*tmp_content, 2)));
+	h1_tResult_Q2xB[binq2][binxB]->SetBinError(i, TMath::Sqrt(TMath::Power(tmp_error*tmp_EffVal, 2) + TMath::Power(tmp_EffErr*tmp_content, 2)));
       }
+    }
+  }
+
+  // Get bin by bin efficiencies and scale bins of histograms - TH1 method
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
+      // Multiply hists together
+      h1_tResult_Q2xB_v2[binq2][binxB]->Multiply(tmpHist1D);
+      // Manually multiply bin by bin
+      // for(int i = 1; i <= h1_tResult_Q2xB_v2[binq2][binxB]->GetNbinsX(); ++i){
+      // 	tmp_content = h1_tResult_Q2xB_v2[binq2][binxB]->GetBinContent(i);
+      // 	tmp_error = h1_tResult_Q2xB_v2[binq2][binxB]->GetBinError(i);
+      // 	tmp_EffVal = tmpHist1D->GetBinContent(i);
+      // 	tmp_EffErr = tmpHist1D->GetBinError(i);
+      // 	h1_tResult_Q2xB_v2[binq2][binxB]->SetBinContent(i, tmp_content * tmp_EffVal);
+      // 	h1_tResult_Q2xB_v2[binq2][binxB]->SetBinError(i, TMath::Sqrt(TMath::Power(tmp_error*tmp_EffVal, 2) + TMath::Power(tmp_EffErr*tmp_content, 2))); 
+      // }
     }
   }
   
