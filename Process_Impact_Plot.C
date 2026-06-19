@@ -13,7 +13,7 @@ using ROOT::Math::VectorUtil::boost;
 
 TH1::SetDefaultSumw2(kTRUE);
 
-void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
+void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", double IntLumiGen=-9999){
 
   if(CheckFile_Gen(InGenFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
     exit(1);
@@ -38,7 +38,14 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
   TEfficiency *tmpEff;
   TLegend* Leg_Comp = new TLegend (0.1, 0.2, 0.9, 0.6);
   // Integrated lumi (in fb-1) of the generated file
-  double IntLumiGen = 0.12; //  What matters is the int lumi in the processed HepMC3 file
+  if(IntLumiGen == -9999){
+    cout << "Integrated lumi argument not proivded, setting to default (0.12 fb-1)" << endl;
+    IntLumiGen = 0.12; //  What matters is the int lumi in the processed HepMC3 file
+  }
+  else if(IntLumiGen <= 0){
+    cout << "Integrated luminosity in generated file set to 0 (or -ve!), defaulting to 1fb-1" << endl;
+    IntLumiGen = 1;
+  }
   TDatime d;
   TFile *ofile = TFile::Open(Form("9x130_ImpactPlots_%d_0%d_%d.root", d.GetDay(), d.GetMonth(), d.GetYear()) ,"RECREATE");
 

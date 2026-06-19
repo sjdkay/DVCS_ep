@@ -5,4 +5,6 @@ Output/*
 *.pdf
 *.odp
 *.ods
+*.log
 #*
+Impact_Plots/*
