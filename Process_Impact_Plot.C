@@ -36,6 +36,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
   TH1D* tmpHist1D;
   TH2D* tmpHist2D;
   TEfficiency *tmpEff;
+  TLegend* Leg_Comp = new TLegend (0.1, 0.2, 0.9, 0.6);
   // Integrated lumi (in fb-1) of the generated file
   double IntLumiGen = 0.12; //  What matters is the int lumi in the processed HepMC3 file
   TDatime d;
@@ -138,7 +139,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       h1_tResult_Q2xB[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB));
       h1_tResult_Q2xB[binq2][binxB]->Scale(1/IntLumiGen);
-      h1_tResult_Q2xB_v2[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB));
+      h1_tResult_Q2xB_v2[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB_v2[%i][%i]",binq2,binxB));
       h1_tResult_Q2xB_v2[binq2][binxB]->Scale(1/IntLumiGen);
       h1_tGen_Q2xB[binq2][binxB]->Scale(1/IntLumiGen); // For comparison later
     }
@@ -170,7 +171,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
       // Multiply hists together
-      h1_tResult_Q2xB_v2[binq2][binxB]->Multiply(tmpHist1D);
+      h1_tResult_Q2xB_v2[binq2][binxB]->Multiply(tmpHist1D); 
       // Manually multiply bin by bin
       // for(int i = 1; i <= h1_tResult_Q2xB_v2[binq2][binxB]->GetNbinsX(); ++i){
       // 	tmp_content = h1_tResult_Q2xB_v2[binq2][binxB]->GetBinContent(i);
@@ -183,34 +184,72 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
     }
   }
   
-  // TCanvas* c_Q2xB_Results[9];
-  // TLatex *Q2_Range_Text[9];
-  // TString OutPdf = Form(Form("9x130_ImpactPlots_%d_0%d_%d.pdf", d.GetDay(), d.GetMonth(), d.GetYear()));
-  // for(int binq2{0}; binq2<nQ2bins; binq2++){
-  //   c_Q2xB_Results[binq2] = new TCanvas(Form("c_Q2xB_Results_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
-  //   c_Q2xB_Results[binq2]->Divide(4,3); 
-  //   for(int binxB{0}; binxB<nxBbins; binxB++){
-  //     c_Q2xB_Results[binq2]->cd(binxB+1);
-  //     h1_tDiff_v2[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-  //     h1_tDiff_v2[binq2][binxB]->Draw("HISTERR");
-  //     gPad->SetLogy(1);
-  //   }
-  //   c_Q2xB_Results[binq2]->cd(12);
-  //   Q2_Range_Text[binq2] = new TLatex(0.2, 0.5, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
-  //   Q2_Range_Text[binq2]->Draw();
-  //   if(binq2 == 0){
-  //     c_Q2xB_Results[binq2]->Print(OutPdf + "(");
-  //   }
-  //   else if(binq2 == 7){
-  //     c_Q2xB_Results[binq2]->Print(OutPdf + ")");
-  //   }
-  //   else{
-  //     c_Q2xB_Results[binq2]->Print(OutPdf);
-  //   }
-  // }
-  
+  // TH1D* h1_tGen_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
+  // TH1D* h1_tResult_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TEfficiency method
+  // TH1D* h1_tResult_Q2xB_v2[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TH1 method
+  TCanvas* c_Q2xB_Results[9];
+  TLatex *Q2_Range_Text[9];
+  TString OutPdf = (Form("9x130_ImpactPlots_%d_0%d_%d_TEff_Ver.pdf", d.GetDay(), d.GetMonth(), d.GetYear()));
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    c_Q2xB_Results[binq2] = new TCanvas(Form("c_Q2xB_Results_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+    c_Q2xB_Results[binq2]->Divide(4,3); 
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      c_Q2xB_Results[binq2]->cd(binxB+1);
+      h1_tGen_Q2xB[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      h1_tGen_Q2xB[binq2][binxB]->SetLineColor(kP6Blue);
+      h1_tGen_Q2xB[binq2][binxB]->Draw("HISTERR");
+      h1_tResult_Q2xB[binq2][binxB]->SetLineColor(kP6Yellow);
+      h1_tResult_Q2xB[binq2][binxB]->Draw("SAMEHISTERR");
+      if(binq2 == 0 && binxB == 0){
+	Leg_Comp->AddEntry(h1_tGen_Q2xB[0][0], "Generated MC");
+	Leg_Comp->AddEntry(h1_tResult_Q2xB[0][0], "ePIC Reco Scaled MC");
+      }
+      gPad->SetLogy(1);
+    }
+    c_Q2xB_Results[binq2]->cd(12);
+    Leg_Comp->Draw();
+    Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
+    Q2_Range_Text[binq2]->Draw();
+    if(binq2 == 0){
+      c_Q2xB_Results[binq2]->Print(OutPdf + "(");
+    }
+    else if(binq2 == 7){
+      c_Q2xB_Results[binq2]->Print(OutPdf + ")");
+    }
+    else{
+      c_Q2xB_Results[binq2]->Print(OutPdf);
+    }
+  }
+
+  TCanvas* c_Q2xB_Results_2[9];
+  TString OutPdf2 = (Form("9x130_ImpactPlots_%d_0%d_%d_THist_Ver.pdf", d.GetDay(), d.GetMonth(), d.GetYear()));
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    c_Q2xB_Results_2[binq2] = new TCanvas(Form("c_Q2xB_Results_2_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+    c_Q2xB_Results_2[binq2]->Divide(4,3); 
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      c_Q2xB_Results_2[binq2]->cd(binxB+1);
+      h1_tGen_Q2xB[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      h1_tGen_Q2xB[binq2][binxB]->SetLineColor(kP6Blue);
+      h1_tGen_Q2xB[binq2][binxB]->Draw("HISTERR");
+      h1_tResult_Q2xB[binq2][binxB]->SetLineColor(kP6Yellow);
+      h1_tResult_Q2xB[binq2][binxB]->Draw("SAMEHISTERR");
+      gPad->SetLogy(1);
+    }
+    c_Q2xB_Results_2[binq2]->cd(12);
+    Leg_Comp->Draw();
+    Q2_Range_Text[binq2]->Draw();
+    if(binq2 == 0){
+      c_Q2xB_Results_2[binq2]->Print(OutPdf2 + "(");
+    }
+    else if(binq2 == 7){
+      c_Q2xB_Results_2[binq2]->Print(OutPdf2 + ")");
+    }
+    else{
+      c_Q2xB_Results_2[binq2]->Print(OutPdf2);
+    }
+  }
+
   ofile->Write(); // Write histograms to file
   ofile->Close(); // Close output file
-
   
 }
