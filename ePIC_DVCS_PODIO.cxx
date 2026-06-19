@@ -579,8 +579,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
   // These are used for new "result" output
   TH1D* h1_tMC_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC, true Q2/xB values
   TH1D* h1_tMCAcc_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t MC for accepted events, true Q2/xB values
-  TH1D* h1_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco
-  TEfficiency* h1DEff_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco
+  TH1D* h1_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco - TH1 version
+  TEfficiency* h1DEff_t_Q2xB_Eff[nQ2bins][nxBbins]; // Bin by bin efficiency for t reco - TEff version
   
   // Other histograms of interest
   // TH1D* h1_tB0_Q2xB_True[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin, t from B0, true Q2/xB values
@@ -1600,84 +1600,84 @@ void ePIC_DVCS_TASK::doAnalysis(){
   fOutFile->cd();
   gDirectory->mkdir("Oliver_Plots");
   gDirectory->cd("Oliver_Plots");
-  // Eta - MC
-  h_eta_MCp->Write();
-  h_eta_MCe->Write();
-  h_eta_MCg->Write();
-  h_eta_MCAp->Write();
-  h_eta_MCAe->Write();
-  h_eta_MCAg->Write();
-  // Eta - reco.
-  h_eta_RPp->Write();
-  h_eta_RPPp->Write();
-  h_eta_RPe->Write();
-  h_eta_RPg->Write();
-  // Other single-particle plots
-  h_EoverP_elec->Write();
-  h_2D_EvEta_e->Write();
-  h_2D_EvEta_g->Write();
-  h_2D_EvEta_p->Write();
-  // Photon theta resolution
-  h_PhotRes_theta->Write();
-  h_PhotRes2D_theta->Write();
-  // t distributions
-  h_t_Truth->Write();
-  h_t_B0Acc->Write();
-  h_t_RPAcc->Write();
-  h_t_B0Reco->Write();
-  h_t_RPReco->Write();
-  h_t_LCAcc->Write();
-  h_t_LCReco->Write();
-  // 2D t resolution
-  h2_tResB0->Write();
-  h2_tResRP->Write();
-  h2_tResB0Pct->Write();
-  h2_tResRPPct->Write();
-  h2_tResLC->Write();
-  h2_tResLCPct->Write();
-  // Trento phi
-  h_TPhi_MC->Write();
-  h_TPhi_B0Acc->Write();
-  h_TPhi_RPAcc->Write();
-  h_TPhi_B0Reco->Write();
-  h_TPhi_RPReco->Write();
-  h_TPhiRes->Write();
-  // Inclusive kinematic distributions - 1D
-  h_Q2_MC->Write();
-  h_Q2_Acc->Write();
-  h_Q2_Reco->Write();
-  h_xB_MC->Write();
-  h_xB_Acc->Write();
-  h_xB_Reco->Write();
-  h_y_MC->Write();
-  h_y_Acc->Write();
-  h_y_Reco->Write();
-  // Inclusive kinematic distributions - 2D
-  h_Q2_2d->Write();
-  h_xB_2d->Write();
-  h_y_2d->Write();
-  // Inclusive kinematic resolutions
-  h_PctResQ2->Write();
-  h_PctResxB->Write();
-  h_PctResy->Write();
-  // Cross-variable coverages
-  h_2D_xVQ2_MC->Write();
-  h_2D_xVQ2_RP->Write();
-  // Cuts plots
-  h_theta_MCp->Write();
-  h_theta_B0p->Write();
-  h_theta_RPp->Write();
-  h_M2miss3_MC->Write();
-  h_M2miss3_MCA->Write();
-  h_M2miss3_RP->Write();
-  h_EmPz3_MC->Write();
-  h_EmPz3_RP->Write();
-  h_EmPz2_MC->Write();
-  h_EmPz2_RP->Write();
+  // // Eta - MC
+  // h_eta_MCp->Write();
+  // h_eta_MCe->Write();
+  // h_eta_MCg->Write();
+  // h_eta_MCAp->Write();
+  // h_eta_MCAe->Write();
+  // h_eta_MCAg->Write();
+  // // Eta - reco.
+  // h_eta_RPp->Write();
+  // h_eta_RPPp->Write();
+  // h_eta_RPe->Write();
+  // h_eta_RPg->Write();
+  // // Other single-particle plots
+  // h_EoverP_elec->Write();
+  // h_2D_EvEta_e->Write();
+  // h_2D_EvEta_g->Write();
+  // h_2D_EvEta_p->Write();
+  // // Photon theta resolution
+  // h_PhotRes_theta->Write();
+  // h_PhotRes2D_theta->Write();
+  // // t distributions
+  // h_t_Truth->Write();
+  // h_t_B0Acc->Write();
+  // h_t_RPAcc->Write();
+  // h_t_B0Reco->Write();
+  // h_t_RPReco->Write();
+  // h_t_LCAcc->Write();
+  // h_t_LCReco->Write();
+  // // 2D t resolution
+  // h2_tResB0->Write();
+  // h2_tResRP->Write();
+  // h2_tResB0Pct->Write();
+  // h2_tResRPPct->Write();
+  // h2_tResLC->Write();
+  // h2_tResLCPct->Write();
+  // // Trento phi
+  // h_TPhi_MC->Write();
+  // h_TPhi_B0Acc->Write();
+  // h_TPhi_RPAcc->Write();
+  // h_TPhi_B0Reco->Write();
+  // h_TPhi_RPReco->Write();
+  // h_TPhiRes->Write();
+  // // Inclusive kinematic distributions - 1D
+  // h_Q2_MC->Write();
+  // h_Q2_Acc->Write();
+  // h_Q2_Reco->Write();
+  // h_xB_MC->Write();
+  // h_xB_Acc->Write();
+  // h_xB_Reco->Write();
+  // h_y_MC->Write();
+  // h_y_Acc->Write();
+  // h_y_Reco->Write();
+  // // Inclusive kinematic distributions - 2D
+  // h_Q2_2d->Write();
+  // h_xB_2d->Write();
+  // h_y_2d->Write();
+  // // Inclusive kinematic resolutions
+  // h_PctResQ2->Write();
+  // h_PctResxB->Write();
+  // h_PctResy->Write();
+  // // Cross-variable coverages
+  // h_2D_xVQ2_MC->Write();
+  // h_2D_xVQ2_RP->Write();
+  // // Cuts plots
+  // h_theta_MCp->Write();
+  // h_theta_B0p->Write();
+  // h_theta_RPp->Write();
+  // h_M2miss3_MC->Write();
+  // h_M2miss3_MCA->Write();
+  // h_M2miss3_RP->Write();
+  // h_EmPz3_MC->Write();
+  // h_EmPz3_RP->Write();
+  // h_EmPz2_MC->Write();
+  // h_EmPz2_RP->Write();
 
-  h_eta_FakePhot->Write();
-  h_eta_ElecGamma_MC->Write();
-  h_eta_ElecGamma_RP->Write();
+  // h_eta_FakePhot->Write();
+  // h_eta_ElecGamma_MC->Write();
+  // h_eta_ElecGamma_RP->Write();
   
   for(int q{0}; q<nQ2bins; q++){
     for(int x{0}; x<nxBbins; x++){
@@ -1701,11 +1701,11 @@ void ePIC_DVCS_TASK::doAnalysis(){
     for(int x{0}; x<nxBbins; x++){
       h1_tMC_Q2xB_True[q][x]->Write();
       h1_tMCAcc_Q2xB_True[q][x]->Write();
-      h1DEff_t_Q2xB_Eff[q][x]->SetTotalHistogram(*(h1_tMC_Q2xB_True[q][x]), "");
+      h1_t_Q2xB_Eff[q][x]->Divide(h1_tMCAcc_Q2xB_True[q][x], h1_tMC_Q2xB_True[q][x], 1, 1, "b"); // Calculate efficiency plot using TH1
+      h1_t_Q2xB_Eff[q][x]->Write();
+      h1DEff_t_Q2xB_Eff[q][x]->SetTotalHistogram(*(h1_tMC_Q2xB_True[q][x]), ""); // Calculate eff using TEfficiency
       h1DEff_t_Q2xB_Eff[q][x]->SetPassedHistogram(*(h1_tMCAcc_Q2xB_True[q][x]), "");
       h1DEff_t_Q2xB_Eff[q][x]->Write();
-      h1_t_Q2xB_Eff[q][x]->Divide(h1_tMCAcc_Q2xB_True[q][x], h1_tMC_Q2xB_True[q][x], 1, 1, "b"); // Calculate efficiency plot
-      h1_t_Q2xB_Eff[q][x]->Write();
       // h1_tB0_Q2xB_True[q][x]->Write();
       // h1_tRP_Q2xB_True[q][x]->Write();
       // h1_tMethL_Q2xB_True[q][x]->Write();
@@ -1714,7 +1714,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
       // h1_tB0_Q2xB_Rec[q][x]->Write();
       // h1_tRP_Q2xB_Rec[q][x]->Write();
       // h1_tMethL_Q2xB_Rec[q][x]->Write();
-      
     }
   }
 
