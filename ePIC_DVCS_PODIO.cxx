@@ -1583,7 +1583,6 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	 applyCuts_Proton(scatp4_rom, "RP")      ) h_M2miss3_RP->Fill(calcM2Miss_3Body(beame4, beamp4, scate4_rec[0], scatp4_rom[0], scatg4_rec[0]));
 
     } // END OF EVENT LOOP - MAIN LOOP
-    cout << "Finished processing file" << endl;
     fileCounter++;
   } // END OF FILE LIST
   
