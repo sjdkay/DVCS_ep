@@ -4,18 +4,19 @@
 // Script to process EpIC generator output in combination with simulated output (efficiencies per x/Q2/t bin)
 
 using namespace ROOT::Math;
+using ROOT::Math::VectorUtil::boost;
 
 #include "TString.h"
-#include "Process_Sim_Output.h"
+#include "Process_Impact_Plot.h"
 #include "ePICStyle.C"
 #include <vector>
 
-void Process_Impact_Plot.C(TString InGenFile="", TString InSimOutputFile=""){
+void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile=""){
 
-  if(CheckFile(InGenFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
+  if(CheckFile_Gen(InGenFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
     exit(1);
   }
-  if(CheckFile(InSimOutputFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
+  if(CheckFile_Sim(InSimOutputFile) == kFALSE){ // Check files exist, can be opened and contain tree with fn
     exit(2);
   }
   gStyle->SetOptStat(0);
@@ -33,14 +34,20 @@ void Process_Impact_Plot.C(TString InGenFile="", TString InSimOutputFile=""){
   TH1D* tmpHist1D;
   TH2D* tmpHist2D;
   // Integrated lumi (in fb-1) of the generated file
-  double IntLumiGen = 2*0.12; // 2* because the filelist is BOTH helicities
+  double IntLumiGen = 0.12; //  What matters is the int lumi in the processed HepMC3 file
 
   // Open generator level file and get xB/Q2/t for each event, fill relevant histogram
   TH1D* h1_tGen_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
+  TH1D* h1_tResult_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
 
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
       	h1_tGen_Q2xB[binq2][binxB] = new TH1D(Form("h1_tGen_Q2xB[%i][%i]",binq2,binxB),
+						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t| [GeV^{2}];",
+						     q2edges[binq2],q2edges[binq2+1],
+						     xBedges[binxB],xBedges[binxB+1]),
+						20, 0., 2.);
+      	h1_tResult_Q2xB[binq2][binxB] = new TH1D(Form("h1_tResult_Q2xB[%i][%i]",binq2,binxB),
 						Form("%.1f<Q^{2}<%.1f GeV^{2}, %.2e<x_{B}<%.2e;|t| [GeV^{2}];",
 						     q2edges[binq2],q2edges[binq2+1],
 						     xBedges[binxB],xBedges[binxB+1]),
@@ -73,6 +80,34 @@ void Process_Impact_Plot.C(TString InGenFile="", TString InSimOutputFile=""){
     if (GoodEvent != kTRUE){cout << "Beam and output particles not found in event" << endl; continue;} // Check all relevant particles found and assigned
 
     // Need to undo AB for each particle
+    Vec_CoM_Boost = Vec_e_beam + Vec_p_beam;
+    Boost_CoM.SetXYZ(-Vec_CoM_Boost.X()/Vec_CoM_Boost.E(), -Vec_CoM_Boost.Y()/Vec_CoM_Boost.E(), -Vec_CoM_Boost.Z()/Vec_CoM_Boost.E());
+    Vec_e_beam = boost(Vec_e_beam, Boost_CoM);
+    Vec_p_beam = boost(Vec_p_beam, Boost_CoM);
+    RotX = RotationX(1.0*TMath::ATan2(Vec_p_beam.Y(), Vec_p_beam.Z()));
+    RotY = RotationY(-1.0*TMath::ATan2(Vec_p_beam.X(), Vec_p_beam.Z()));
+    Vec_p_beam = RotX*Vec_p_beam;
+    Vec_p_beam = RotY*Vec_p_beam;
+    Vec_e_beam = RotX*Vec_e_beam;
+    Vec_e_beam = RotY*Vec_e_beam;
+    Vec_HoF_Boost.SetPxPyPzE(0.,0., Vec_CoM_Boost.Z(), Vec_CoM_Boost.E());
+    Boost_HoF.SetXYZ(Vec_HoF_Boost.X()/Vec_HoF_Boost.E(), Vec_HoF_Boost.Y()/Vec_HoF_Boost.E(), Vec_HoF_Boost.Z()/Vec_HoF_Boost.E());
+    Vec_p_beam = boost(Vec_p_beam, Boost_HoF);
+    Vec_e_beam = boost(Vec_e_beam, Boost_HoF);
+    // Now for FS products, boost to CoM, rotate X and Y, boost to HoF
+    Vec_eSc = boost(Vec_eSc, Boost_CoM);
+    Vec_eSc = RotX*Vec_eSc;
+    Vec_eSc = RotY*Vec_eSc;
+    Vec_eSc = boost(Vec_eSc, Boost_HoF);
+    Vec_pSc = boost(Vec_pSc, Boost_CoM);
+    Vec_pSc = RotX*Vec_pSc;
+    Vec_pSc = RotY*Vec_pSc;
+    Vec_pSc = boost(Vec_pSc, Boost_HoF);
+    Vec_gamma = boost(Vec_gamma, Boost_CoM);
+    Vec_gamma = RotX*Vec_gamma;
+    Vec_gamma = RotY*Vec_gamma;
+    Vec_gamma = boost(Vec_gamma, Boost_HoF);
+    
     // Calculate x/Q2/t from truth info
     Vec_Q2 = (Vec_e_beam - Vec_eSc); // Virtual photon beam vector
     Q2 = -1*(Vec_Q2.mag2());
@@ -81,16 +116,16 @@ void Process_Impact_Plot.C(TString InGenFile="", TString InSimOutputFile=""){
     y =(Vec_p_beam.Dot(Vec_Q2))/(Vec_p_beam.Dot(Vec_e_beam));
     xB = Q2/(4*Vec_e_beam.E()*Vec_p_beam.E()*y);
     // Fill hists
-    h1_Q2->Fill(Q2);
-    h1_t->Fill(t);
-    h1_xB->Fill(xB);
-    h1_y->Fill(y);
+    // h1_Q2->Fill(Q2);
+    // h1_t->Fill(t);
+    // h1_xB->Fill(xB);
+    // h1_y->Fill(y);
     // Need to loop over binning scheme and fill relevant histograms - probably a more efficiency way of doing this, but it will work
     for(int binq2{0}; binq2<nQ2bins; binq2++){
       if(q2edges[binq2] < Q2 && Q2 < q2edges[binq2+1]){
 	for(int binxB{0}; binxB<nxBbins; binxB++){
 	  if(xBedges[binxB] < xB && xB < xBedges[binxB+1]){
-	    h1_tDiff_v2[binq2][binxB]->Fill(t); // Fill t dist for this x/Q2 bin
+	    h1_tGen_Q2xB[binq2][binxB]->Fill(t); // Fill t dist for this x/Q2 bin
 	  }
 	} // End xB binning loop
       }
