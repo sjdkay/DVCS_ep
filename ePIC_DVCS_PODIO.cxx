@@ -1696,8 +1696,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
       h1_tMC_Q2xB_True[q][x]->Write();
       h1_tMCAcc_Q2xB_True[q][x]->Write();
       //h1_t_Q2xB_Eff[q][x]->Divide(h1_tMCAcc_Q2xB_True[q][x], h1_tMC_Q2xB_True[q][x], 1, 1, "b"); // Calculate efficiency plot
-      h1DEff_t_Q2xB_Eff[q][x]->SetTotalHistogram("h1_tMC_Q2xB_True[q][x]");
-      h1DEff_t_Q2xB_Eff[q][x]->SetPassedHistogram("h1_tMCAcc_Q2xB_True[q][x]");
+      h1DEff_t_Q2xB_Eff[q][x]->SetTotalHistogram("h1_tMC_Q2xB_True[q][x]", "");
+      h1DEff_t_Q2xB_Eff[q][x]->SetPassedHistogram("h1_tMCAcc_Q2xB_True[q][x]", "");
       h1DEff_t_Q2xB_Eff[q][x]->Write();
       // h1_tB0_Q2xB_True[q][x]->Write();
       // h1_tRP_Q2xB_True[q][x]->Write();
