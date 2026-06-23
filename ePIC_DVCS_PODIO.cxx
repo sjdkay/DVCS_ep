@@ -1452,8 +1452,8 @@ void ePIC_DVCS_TASK::doAnalysis(){
       if(applyCuts_Electron(beame4,scate4_rec) && applyCuts_Photon(scatg4_rec))	h_EmPz2_RP->Fill((scate4_rec[0]+scatg4_rec[0]).E() - (scate4_rec[0]+scatg4_rec[0]).Pz());
 
       //cout<<"[DEBUG] Reco. E-Pz (semi-inclusive) filled"<<endl;
-
-      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "semi")){
+      // Require NO RP or B0 signal and require a MM cut to fill (later) only consider if t in 0.4 to 0.5 region
+      if(applyCuts_All(beame4, beamp4, scate4_rec, scatp4_rec, scatg4_rec, "semi") && scatp4_rom.size() == 0 && scatp4_rec.size() == 0){
 	// Calculations
 	Float_t t_acc = calcT_MethodL(beame4,beamp4,scate4_aso[0],fMass_proton,scatg4_aso[0]);
 	Float_t t_rec = calcT_MethodL(beame4,beamp4,scate4_rec[0],fMass_proton,scatg4_rec[0]);

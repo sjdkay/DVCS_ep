@@ -20,7 +20,8 @@ void Process_Sim_Output(TString InFile = ""){
   gStyle->SetPadRightMargin(0.15);
   
   TFile *File =  new TFile(InFile);
-  
+  TDatime d;
+
   //gDirectory->cd("Q2xB_Binned_Dists");
   // Just need to open other file in this case and get hists
   //  TFile *ofile = TFile::Open(Form("%s_Q2xB_Hists.root", (InFile.Remove(InFile.Length() - 5)).Data()),"RECREATE"); // 5 cuts the .root from the original input file name
@@ -38,7 +39,8 @@ void Process_Sim_Output(TString InFile = ""){
   TCanvas* c_Q2xB_Results[9];
   TLatex *Q2_Range_Text[9];
   TLegend* Leg_tComp = new TLegend (0.1, 0.2, 0.9, 0.6);
-  TString OutPdf = Form("%s_TrueQ2xB_Binned_tDists_Sim.pdf", (InFile.Remove(InFile.Length() - 5)).Data());
+
+  TString OutPdf = Form("Output/10x130_TrueQ2xB_Binned_tDists_Sim_%d_0%d_%d.pdf", d.GetDay(), d.GetMonth(), d.GetYear());
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     c_Q2xB_Results[binq2] = new TCanvas(Form("c_Q2xB_Results_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
     c_Q2xB_Results[binq2]->Divide(4,3); 
@@ -46,17 +48,35 @@ void Process_Sim_Output(TString InFile = ""){
       c_Q2xB_Results[binq2]->cd(binxB+1);
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMC_Q2xB_True[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Gray);
+      tmpHist1D->SetLineColor(kP6Blue);
       if(binq2 == 0 && binxB == 0){ //First bin only
 	Leg_tComp->AddEntry(tmpHist1D, "t_{MC}");
       }
       tmpHist1D->Draw("HISTERR");
       tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMCAcc_Q2xB_True[%i][%i]",binq2,binxB))));
       tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
-      tmpHist1D->SetLineColor(kP6Violet);
+      tmpHist1D->SetLineColor(kP6Yellow);
       if(binq2 == 0 && binxB == 0){ //First bin only
 	Leg_tComp->AddEntry(tmpHist1D, "t_{MC_Accepted}");
       }
+      tmpHist1D->Draw("SAMEHISTERR");
+      gPad->SetLogy(1);
+    }
+    c_Q2xB_Results[binq2]->cd(12);
+    Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
+    Q2_Range_Text[binq2]->Draw();
+    Leg_tComp->Draw("SAME");
+    if(binq2 == 0){
+      c_Q2xB_Results[binq2]->Print(OutPdf + "(");
+    }
+    else if(binq2 == 7){
+      c_Q2xB_Results[binq2]->Print(OutPdf + ")");
+    }
+    else{
+      c_Q2xB_Results[binq2]->Print(OutPdf);
+    }
+  }
+
     //   tmpHist1D->Draw("SAMEHISTERR");
     //   tmpHist1D = (TH1D*)(((TH1D*)File->Get(Form("Q2xB_Binned_Dists/h1_tMethL_Q2xB_True[%i][%i]",binq2,binxB))));
     //   tmpHist1D->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
@@ -81,21 +101,7 @@ void Process_Sim_Output(TString InFile = ""){
     //   tmpHist1D->Draw("SAMEHISTERR");
     //   gPad->SetLogy(1);
     // }
-    c_Q2xB_Results[binq2]->cd(12);
-    Q2_Range_Text[binq2] = new TLatex(0.2, 0.8, Form("%.1f<Q^{2}<%.1f GeV^{2}", q2edges[binq2],q2edges[binq2+1]));
-    Q2_Range_Text[binq2]->Draw();
-    Leg_tComp->Draw("SAME");
-    if(binq2 == 0){
-      c_Q2xB_Results[binq2]->Print(OutPdf + "(");
-    }
-    else if(binq2 == 7){
-      c_Q2xB_Results[binq2]->Print(OutPdf + ")");
-    }
-    else{
-      c_Q2xB_Results[binq2]->Print(OutPdf);
-    }
-  }
-
+    
   // TCanvas* c_Q2xB_Results2[9];
   // TString OutPdf2 = Form("%s_RecQ2xB_Binned_tDists_Rec.pdf", InFile.Data());
   // for(int binq2{0}; binq2<nQ2bins; binq2++){
@@ -141,7 +147,7 @@ void Process_Sim_Output(TString InFile = ""){
   // }
 
   TCanvas* c_tRes_Results =  new TCanvas("c_tResResults", "t Resolutions", 100, 0, 2560, 1920);
-  TString OutPdf3 = Form("%s_tRes_Results.pdf", InFile.Data());
+  TString OutPdf3 = Form("Output/10x130_tRes_Sim_%d_0%d_%d.pdf", d.GetDay(), d.GetMonth(), d.GetYear());
   TGraphErrors *tResGraphs[3];
   c_tRes_Results->Divide(3,2);
   c_tRes_Results->cd(1);
