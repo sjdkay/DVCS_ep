@@ -1492,8 +1492,10 @@ void ePIC_DVCS_TASK::doAnalysis(){
 	  }
 	}
 	if((binq2!=-1) && (binxB!=-1)){
-	  if( t_gen >= 0.4 && t_gen < 0.5){
-	    h1_tMCAcc_Q2xB_True[binq2][binxB]->Fill(t_gen);
+	  if(abs(fM2miss) < 1){ // Only fill if Missing Mass Squared (abs value) is 1 or lower - cut high MM events
+	    if( t_gen >= 0.4 && t_gen < 0.5){
+	      h1_tMCAcc_Q2xB_True[binq2][binxB]->Fill(t_gen);
+	    }
 	  }
 	}
 	

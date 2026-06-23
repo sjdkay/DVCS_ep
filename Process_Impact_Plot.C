@@ -37,6 +37,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
   TH2D* tmpHist2D;
   TEfficiency *tmpEff;
   TLegend* Leg_Comp = new TLegend (0.1, 0.2, 0.9, 0.6);
+  TLegend* Leg_Comp2 = new TLegend (0.1, 0.2, 0.9, 0.6);
   // Integrated lumi (in fb-1) of the generated file
   if(IntLumiGen == -9999){
     cout << "Integrated lumi argument not proivded, setting to default (0.12 fb-1)" << endl;
@@ -53,6 +54,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
   TH1D* h1_tGen_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin
   TH1D* h1_tResult_Q2xB[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TEfficiency method
   TH1D* h1_tResult_Q2xB_v2[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - TH1 method
+  TH1D* h1_tResult_Q2xB_v3[nQ2bins][nxBbins]; // Full t dists for each x/Q2 bin - MC with scaled error bars
 
   for(int binq2{0}; binq2<nQ2bins; binq2++){
     for(int binxB{0}; binxB<nxBbins; binxB++){
@@ -149,6 +151,7 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
       h1_tResult_Q2xB_v2[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB_v2[%i][%i]",binq2,binxB));
       h1_tResult_Q2xB_v2[binq2][binxB]->Scale(1/IntLumiGen);
       h1_tGen_Q2xB[binq2][binxB]->Scale(1/IntLumiGen); // For comparison later
+      h1_tResult_Q2xB_v3[binq2][binxB] = (TH1D*)h1_tGen_Q2xB[binq2][binxB]->Clone(Form("h1_tResult_Q2xB_v3[%i][%i]",binq2,binxB));
     }
   }
   
@@ -179,6 +182,8 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
       tmpHist1D = (TH1D*)(((TH1D*)SimFile->Get(Form("Q2xB_Binned_Dists/h1_t_Q2xB_Eff[%i][%i]",binq2,binxB))));
       // Multiply hists together
       h1_tResult_Q2xB_v2[binq2][binxB]->Multiply(tmpHist1D); 
+      h1_tResult_Q2xB_v3[binq2][binxB]->Divide(h1_tResult_Q2xB_v2[binq2][binxB]);
+      h1_tResult_Q2xB_v3[binq2][binxB]->Multiply(h1_tResult_Q2xB_v2[binq2][binxB]);
       // Manually multiply bin by bin
       // for(int i = 1; i <= h1_tResult_Q2xB_v2[binq2][binxB]->GetNbinsX(); ++i){
       // 	tmp_content = h1_tResult_Q2xB_v2[binq2][binxB]->GetBinContent(i);
@@ -238,8 +243,8 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
       h1_tGen_Q2xB[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
       h1_tGen_Q2xB[binq2][binxB]->SetLineColor(kP6Blue);
       h1_tGen_Q2xB[binq2][binxB]->Draw("HISTERR");
-      h1_tResult_Q2xB[binq2][binxB]->SetLineColor(kP6Yellow);
-      h1_tResult_Q2xB[binq2][binxB]->Draw("SAMEHISTERR");
+      h1_tResult_Q2xB_v2[binq2][binxB]->SetLineColor(kP6Yellow);
+      h1_tResult_Q2xB_v2[binq2][binxB]->Draw("SAMEHISTERR");
       gPad->SetLogy(1);
     }
     c_Q2xB_Results_2[binq2]->cd(12);
@@ -253,6 +258,37 @@ void Process_Impact_Plot(TString InGenFile="", TString InSimOutputFile="", doubl
     }
     else{
       c_Q2xB_Results_2[binq2]->Print(OutPdf2);
+    }
+  }
+
+
+  // Final version is MC dist ONLY, scaled by reco level errors
+  TCanvas* c_Q2xB_Results_3[9];
+  TString OutPdf3 = (Form("9x130_ImpactPlots_%d_0%d_%d_THist_Ver2.pdf", d.GetDay(), d.GetMonth(), d.GetYear()));
+  for(int binq2{0}; binq2<nQ2bins; binq2++){
+    c_Q2xB_Results_3[binq2] = new TCanvas(Form("c_Q2xB_Results_3_%i", binq2+1), Form("t Dists across xB bins, Q2 %i", binq2+1), 100, 0, 2560, 1920);
+    c_Q2xB_Results_3[binq2]->Divide(4,3); 
+    for(int binxB{0}; binxB<nxBbins; binxB++){
+      c_Q2xB_Results_3[binq2]->cd(binxB+1);
+      h1_tResult_Q2xB_v3[binq2][binxB]->SetTitle(Form("%.2e<x_{B}<%.2e", xBedges[binxB],xBedges[binxB+1]));
+      h1_tResult_Q2xB_v3[binq2][binxB]->SetLineColor(kP6Yellow);
+      h1_tResult_Q2xB_v3[binq2][binxB]->Draw("HISTERR");
+      gPad->SetLogy(1);
+      if(binq2 == 0 && binxB == 0){
+	Leg_Comp2->AddEntry(h1_tResult_Q2xB_v3[0][0], "Generated MC, scaled by reco errors");
+      }
+    }
+    c_Q2xB_Results_3[binq2]->cd(12);
+    Leg_Comp2->Draw();
+    Q2_Range_Text[binq2]->Draw();
+    if(binq2 == 0){
+      c_Q2xB_Results_3[binq2]->Print(OutPdf3 + "(");
+    }
+    else if(binq2 == 7){
+      c_Q2xB_Results_3[binq2]->Print(OutPdf3 + ")");
+    }
+    else{
+      c_Q2xB_Results_3[binq2]->Print(OutPdf3);
     }
   }
 
